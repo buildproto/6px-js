@@ -41,7 +41,7 @@
 	var sendToServer = function(json, success, failed) {
 		var user = px.userData;
 
-		var url = 'http://api.6px.io/users/'+ user.userId + '/jobs?key='+ user.apiKey;
+		var url = 'https://api.6px.io/users/'+ user.userId + '/jobs?key='+ user.apiKey;
 
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
