@@ -63,7 +63,7 @@
 	/**
 	 * Constructor
 	 */
-	var SixPx = function(input) {
+	var _6px = function(input) {
 		this.image = input;
 		this.actions = {};
 	};
@@ -73,14 +73,14 @@
 	 *
 	 * @param {object} size: Pass in width and/or height
 	 */
-	SixPx.prototype.resize = function(size) {
+	_6px.prototype.resize = function(size) {
 
 		this.actions.resize = size;
 
 		return this;
 	};
 
-	SixPx.prototype.filter = function(type, value) {
+	_6px.prototype.filter = function(type, value) {
 
 		if (!this.actions.filter) {
 			this.actions.filter = {};
@@ -97,14 +97,14 @@
 		return this;
 	};
 
-	SixPx.prototype.crop = function(position) {
+	_6px.prototype.crop = function(position) {
 		
 		this.actions.crop = position;
 
 		return this;
 	};
 
-	SixPx.prototype.save = function(options, fn) {
+	_6px.prototype.save = function(options, fn) {
 		
 		var _this = this;
 
@@ -115,7 +115,7 @@
 
 		var json = {
 			callback: {
-				url: options.callback || false
+				url: options.callback || null
 			},
 			user_id: px.userData.userId,
 			output: [{
@@ -153,7 +153,7 @@
 			throw '6px: You must call init!';
 		}
 
-		return new SixPx(input);
+		return new _6px(input);
 	};
 
 	px.version = version;
