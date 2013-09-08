@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.0.1';
+	var version = '0.0.2';
 
 	var parseInput = function(input, fn) {
 
@@ -65,6 +65,9 @@
 	 */
 	var _6px = function(input) {
 		this.image = input;
+		this.tag = false;
+		this.type = 'image/png';
+		this.callback = false;
 		this.actions = {};
 	};
 
@@ -97,9 +100,42 @@
 		return this;
 	};
 
+	_6px.prototype.priority = function(value) {
+
+		this.priority = value;
+
+		return this;
+
+	};
+
+	_6px.prototype.rotate = function(options) {
+
+		this.actions.rotate = options;
+
+		return this;
+	};
+
 	_6px.prototype.crop = function(position) {
 		
 		this.actions.crop = position;
+
+		return this;
+	};
+
+	_6px.prototype.tag = function(tag) {
+		this.tag = tag;
+
+		return this;
+	};
+
+	_6px.prototype.callback = function(url) {
+		this.url = url;
+
+		return this;
+	};
+
+	_6px.prototype.type = function(mime) {
+		this.type = mime;
 
 		return this;
 	};
@@ -115,14 +151,14 @@
 
 		var json = {
 			callback: {
-				url: options.callback || null
+				url: this.callback || null
 			},
+			priority: (this.priority || 0),
 			user_id: px.userData.userId,
 			output: [{
 				ref: [0],
-				tag: options.tag || null,
-				type: options.type || 'image/png',
-				url: options.url || null,
+				tag: this.tag || null,
+				type: this.type,
 				methods: [this.actions]
 			}]
 		};
@@ -132,8 +168,6 @@
 			
 			json.input = [];
 			json.input.push(data);
-
-			console.log(json);
 
 			sendToServer(json,
 				function(res) {
@@ -157,6 +191,11 @@
 	};
 
 	px.version = version;
+
+	px.priorities = {
+		high: 1,
+		normal: 0
+	};
 
 	/**
 	 * Use this to set up your account with apiKey, etc
