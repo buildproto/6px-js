@@ -5,8 +5,11 @@
 	var parseInput = function(input, fn) {
 
 		if (typeof input == 'string') {
+
 			fn.call(null, input);
+
 			return;
+
 		}
 
 		if (input instanceof Image) {
@@ -14,6 +17,7 @@
 			fn.call(null, input.src);
 
 			return;
+
 		}
 
 		if (input.nodeType === 1) {
@@ -35,10 +39,12 @@
 			};
 
 			dataUrlReader.readAsDataURL(f);
+
 		}
 	};
 
 	var sendToServer = function(json, success, failed) {
+
 		var user = px.userData;
 
 		var url = (document.location.protocol == 'https' ? 'https://' : 'http://');
@@ -59,17 +65,20 @@
 		xhr.open('POST', url, true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.send(JSON.stringify(json));
+
 	};
 
 	/**
 	 * Constructor
 	 */
 	var _6px = function(input) {
+
 		this.image = input;
 		this.tag = false;
 		this.type = 'image/png';
 		this.callback = false;
 		this.actions = {};
+
 	};
 
 	/**
@@ -82,6 +91,7 @@
 		this.actions.resize = size;
 
 		return this;
+
 	};
 
 	_6px.prototype.filter = function(type, value) {
@@ -99,6 +109,7 @@
 		this.actions.filter[type] = value;
 
 		return this;
+
 	};
 
 	_6px.prototype.priority = function(value) {
@@ -124,18 +135,23 @@
 	};
 
 	_6px.prototype.tag = function(tag) {
+
 		this.tag = tag;
 
 		return this;
+
 	};
 
 	_6px.prototype.callback = function(url) {
+
 		this.url = url;
 
 		return this;
+
 	};
 
 	_6px.prototype.type = function(mime) {
+
 		this.type = mime;
 
 		return this;
@@ -164,7 +180,6 @@
 			}]
 		};
 
-
 		parseInput(this.image, function(data) {
 			
 			json.input = [];
@@ -189,6 +204,7 @@
 		}
 
 		return new _6px(input);
+
 	};
 
 	px.version = version;
@@ -212,7 +228,9 @@
 		}
 
 		px.userData = data;
+
 	};
 
 	window.px = px;
+	
 })();
