@@ -2,42 +2,6 @@
 
 	var version = '0.0.2';
 
-	var parseInput = function(input, fn) {
-
-		if (typeof input == 'string') {
-			fn.call(null, input);
-			return;
-		}
-
-		if (input instanceof Image) {
-
-			fn.call(null, input.src);
-
-			return;
-		}
-
-		if (input.nodeType === 1) {
-
-			if (input.tagName.toLowerCase() == 'img') {
-				fn.call(null, input.src);
-				return;
-			}
-
-			if (window.FormData === undefined) {
-				throw '6px: FileAPI not supported with your browser.';
-			}
-
-			var f = input.files[0];
-
-			var dataUrlReader = new FileReader;
-			dataUrlReader.onloadend = function() {
-				fn.call(null, this.result);
-			};
-
-			dataUrlReader.readAsDataURL(f);
-		}
-	};
-
 	var sendToServer = function(json, success, failed) {
 		var user = px.userData;
 
@@ -78,7 +42,7 @@
 	 */
 	_6px.prototype.resize = function(size) {
 
-		this.actions.resize = size;
+		this.actions.push({ method: 'resize', options: size });
 
 		return this;
 	};
@@ -100,24 +64,16 @@
 		return this;
 	};
 
-	_6px.prototype.priority = function(value) {
-
-		this.priority = value;
-
-		return this;
-
-	};
-
 	_6px.prototype.rotate = function(options) {
 
-		this.actions.rotate = options;
+		this.actions.push({ method: 'rotate', options: options });
 
 		return this;
 	};
 
 	_6px.prototype.crop = function(position) {
 		
-		this.actions.crop = position;
+		this.actions.push({ method: 'crop', options: position });
 
 		return this;
 	};
@@ -149,11 +105,15 @@
 			var options = {};
 		}
 
+		this.actions['layer'] = {
+			image: 1,
+			opacity: 10
+		};
+
 		var json = {
 			callback: {
 				url: this.callback || null
 			},
-			priority: (this.priority || 0),
 			user_id: px.userData.userId,
 			output: [{
 				ref: [0],
@@ -164,7 +124,7 @@
 		};
 
 
-		parseInput(this.image, function(data) {
+		px.parseInput(this.image, function(data) {
 			
 			json.input = [];
 			json.input.push(data);
@@ -192,11 +152,6 @@
 
 	px.version = version;
 
-	px.priorities = {
-		high: 1,
-		normal: 0
-	};
-
 	/**
 	 * Use this to set up your account with apiKey, etc
 	 */
@@ -211,6 +166,42 @@
 		}
 
 		px.userData = data;
+	};
+
+	px.parseInput = function(input, fn) {
+
+		if (typeof input == 'string') {
+			fn.call(null, input);
+			return;
+		}
+
+		if (input instanceof Image) {
+
+			fn.call(null, input.src);
+
+			return;
+		}
+
+		if (input.nodeType === 1) {
+
+			if (input.tagName.toLowerCase() == 'img') {
+				fn.call(null, input.src);
+				return;
+			}
+
+			if (window.FormData === undefined) {
+				throw '6px: FileAPI not supported with your browser.';
+			}
+
+			var f = input.files[0];
+
+			var dataUrlReader = new FileReader;
+			dataUrlReader.onloadend = function() {
+				fn.call(null, this.result);
+			};
+
+			dataUrlReader.readAsDataURL(f);
+		}
 	};
 
 	window.px = px;
