@@ -3,9 +3,11 @@
 	var version = '0.0.2';
 
 	var sendToServer = function(json, success, failed) {
+
 		var user = px.userData;
 
-		var url = 'https://api.6px.io/users/'+ user.userId + '/jobs?key='+ user.apiKey;
+		var url = (document.location.protocol == 'https' ? 'https://' : 'http://');
+			url += 'api.6px.io/users/'+ user.userId + '/jobs?key='+ user.apiKey;
 
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -22,17 +24,20 @@
 		xhr.open('POST', url, true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.send(JSON.stringify(json));
+
 	};
 
 	/**
 	 * Constructor
 	 */
 	var _6px = function(input) {
+
 		this.image = input;
 		this.tag = false;
 		this.type = 'image/png';
 		this.callback = false;
 		this.actions = {};
+
 	};
 
 	/**
@@ -45,6 +50,7 @@
 		this.actions.push({ method: 'resize', options: size });
 
 		return this;
+
 	};
 
 	_6px.prototype.filter = function(type, value) {
@@ -62,6 +68,7 @@
 		this.actions.filter[type] = value;
 
 		return this;
+
 	};
 
 	_6px.prototype.rotate = function(options) {
@@ -79,18 +86,23 @@
 	};
 
 	_6px.prototype.tag = function(tag) {
+
 		this.tag = tag;
 
 		return this;
+
 	};
 
 	_6px.prototype.callback = function(url) {
+
 		this.url = url;
 
 		return this;
+
 	};
 
 	_6px.prototype.type = function(mime) {
+
 		this.type = mime;
 
 		return this;
@@ -148,6 +160,7 @@
 		}
 
 		return new _6px(input);
+
 	};
 
 	px.version = version;
@@ -166,6 +179,7 @@
 		}
 
 		px.userData = data;
+
 	};
 
 	px.parseInput = function(input, fn) {
@@ -205,4 +219,5 @@
 	};
 
 	window.px = px;
+	
 })();
