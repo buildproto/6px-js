@@ -202,20 +202,22 @@
 				fn.call(null, input.src);
 				return;
 			}
-
-			if (window.FormData === undefined) {
-				throw '6px: FileAPI not supported with your browser.';
-			}
-
-			var f = input.files[0];
-
-			var dataUrlReader = new FileReader;
-			dataUrlReader.onloadend = function() {
-				fn.call(null, this.result);
-			};
-
-			dataUrlReader.readAsDataURL(f);
 		}
+
+		// All else failed... must be a FileAPI upload
+
+		if (window.FormData === undefined) {
+			throw '6px: FileAPI not supported with your browser.';
+		}
+
+		var f = input.files[0];
+
+		var dataUrlReader = new FileReader;
+		dataUrlReader.onloadend = function() {
+			fn.call(null, this.result);
+		};
+
+		dataUrlReader.readAsDataURL(f);
 	};
 
 	window.px = px;
