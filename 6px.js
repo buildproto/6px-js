@@ -194,7 +194,7 @@
 	px.dropZone = function(input, options) {
 
 		if (typeof input == 'string') {
-			var elm = document.querySelector(selector);
+			var elm = document.querySelector(input);
 		} else {
 			var elm = input;
 		}
@@ -218,8 +218,8 @@
 	    };
 
 	    elm.ondragover = dragOver;
-	    elm.ondragend = onDragEnd;
-	    elm.ondrop = onDrop;
+	    elm.ondragend = dragEnd;
+	    elm.ondrop = dropped;
 	};
 
 	/**
