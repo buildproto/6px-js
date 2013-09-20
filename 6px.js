@@ -220,6 +220,23 @@
 	    elm.ondragover = dragOver;
 	    elm.ondragend = onDragEnd;
 	    elm.ondrop = onDrop;
+
+	    /**
+	     * Making use of the destroy feature:
+	     *
+	     * var dropZone = px.dropZone('#drop-area', { 
+	     * 	onDrop: function() { 
+	     *		console.log('yay!');
+	     *		dropZone.destroy();
+	     *	}});
+		 */
+	    return {
+	    	destroy: function() {
+	    		elm.ondragover = null;
+	    		elm.ondragend = null;
+	    		elm.ondrop = null;
+	    	}
+	    }
 	};
 
 	/**
@@ -259,30 +276,9 @@
 
 		var dataUrlReader = new FileReader;
 		dataUrlReader.onloadend = function() {
-
-			var regex = /^data:.+\/(.+);base64,(.*)$/,
-				matches = this.result;
-
-			var img = new Img;
-
-			img.onload = function() {
-				/**
-				 * Arguments for your callback function (ignore the null... its for scope):
-				 * - datauri
-				 * - optional image information (width, height, mime)
-				 */
-
-				var extra = { 
-					width: img.width, 
-					height: img.height, 
-					mime: matches[1] 
-				};
-
-				fn.call(null, this.result, extra);
-			};
-
-			img.src = this.result;
-
+			
+			fn.call(null, this.result);
+			
 		};
 
 		dataUrlReader.readAsDataURL(f);
