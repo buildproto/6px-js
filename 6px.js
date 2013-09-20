@@ -194,7 +194,7 @@
 	px.dropZone = function(input, options) {
 
 		if (typeof input == 'string') {
-			var elm = document.querySelector(selector);
+			var elm = document.querySelector(input);
 		} else {
 			var elm = input;
 		}
@@ -202,41 +202,25 @@
 		var wrapCallbacks = function(e, cb) {
 			e.preventDefault();
 
-			if (cb) cb();
+			if (cb) cb(e);
 
 			return false;
 		};
  
-	    var dragOver = function(e) {
-	        return wrapCallbacks(e, options.onDragOver);
-	    };
-	    var dragEnd = function(e) {
-	    	return wrapCallbacks(e, options.onDragOver);
-	    };
-	    var dropped = function(e) {
-	    	return wrapCallbacks(e, options.onDrop);
-	    };
+		var dragOver = function(e) {
+			return wrapCallbacks(e, options.onDragOver);
+		};
+		var dragEnd = function(e) {
+			return wrapCallbacks(e, options.onDragOver);
+		};
+		var dropped = function(e) {
+			return wrapCallbacks(e, options.onDrop);
+		};
 
-	    elm.ondragover = dragOver;
-	    elm.ondragend = onDragEnd;
-	    elm.ondrop = onDrop;
+		elm.ondragover = dragOver;
+		elm.ondragend = dragEnd;
+		elm.ondrop = dropped;
 
-	    /**
-	     * Making use of the destroy feature:
-	     *
-	     * var dropZone = px.dropZone('#drop-area', { 
-	     * 	onDrop: function() { 
-	     *		console.log('yay!');
-	     *		dropZone.destroy();
-	     *	}});
-		 */
-	    return {
-	    	destroy: function() {
-	    		elm.ondragover = null;
-	    		elm.ondragend = null;
-	    		elm.ondrop = null;
-	    	}
-	    }
 	};
 
 	/**
@@ -276,7 +260,7 @@
 
 		var dataUrlReader = new FileReader;
 		dataUrlReader.onloadend = function() {
-			
+
 			fn.call(null, this.result);
 			
 		};
