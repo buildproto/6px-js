@@ -202,24 +202,25 @@
 		var wrapCallbacks = function(e, cb) {
 			e.preventDefault();
 
-			if (cb) cb();
+			if (cb) cb(e);
 
 			return false;
 		};
  
-	    var dragOver = function(e) {
-	        return wrapCallbacks(e, options.onDragOver);
-	    };
-	    var dragEnd = function(e) {
-	    	return wrapCallbacks(e, options.onDragOver);
-	    };
-	    var dropped = function(e) {
-	    	return wrapCallbacks(e, options.onDrop);
-	    };
+		var dragOver = function(e) {
+			return wrapCallbacks(e, options.onDragOver);
+		};
+		var dragEnd = function(e) {
+			return wrapCallbacks(e, options.onDragOver);
+		};
+		var dropped = function(e) {
+			return wrapCallbacks(e, options.onDrop);
+		};
 
-	    elm.ondragover = dragOver;
-	    elm.ondragend = dragEnd;
-	    elm.ondrop = dropped;
+		elm.ondragover = dragOver;
+		elm.ondragend = dragEnd;
+		elm.ondrop = dropped;
+
 	};
 
 	/**
@@ -261,9 +262,10 @@
 		dataUrlReader.onloadend = function() {
 
 			var regex = /^data:.+\/(.+);base64,(.*)$/,
-				matches = this.result;
+				dataUri = this.result,
+				matches = dataUri.match(regex);
 
-			var img = new Img;
+			var img = new Image;
 
 			img.onload = function() {
 				/**
@@ -278,7 +280,7 @@
 					mime: matches[1] 
 				};
 
-				fn.call(null, this.result, extra);
+				fn.call(null, dataUri, extra);
 			};
 
 			img.src = this.result;
