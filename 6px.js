@@ -3,32 +3,13 @@
 	var version = '0.0.2';
 
 	/**
-	 * Sends our data up to the 6px server
+	 * Adds some support to IE8
 	 */
-	var sendToServer = function(json, success, failed) {
-
-		var user = px.userData;
-
-		var url = (document.location.protocol == 'https' ? 'https://' : 'http://');
-			url += 'api.6px.io/users/'+ user.userId + '/jobs?key='+ user.apiKey;
-
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState < 4)
-				return;
-
-			if (xhr.status !== 200)
-				return failed.call();
-
-			if (xhr.readyState === 4)
-				success.call(null, JSON.parse(xhr.responseText));
+	if (!Event.prototype.preventDefault) {
+		Event.prototype.preventDefault = function() {
+			this.returnValue=false;
 		};
-
-		xhr.open('POST', url, true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.send(JSON.stringify(json));
-
-	};
+	}
 
 	/**
 	 * Constructor
@@ -40,6 +21,8 @@
 		this.type = 'image/png';
 		this.callback = false;
 		this.actions = {};
+		this.filters = {};
+		this.hasFilters = false;
 
 	};
 
@@ -58,17 +41,14 @@
 
 	_6px.prototype.filter = function(type, value) {
 
-		if (!this.actions.filter) {
-			this.actions.filter = {};
-		}
-
 		// User took a shortcut and used an object to define them all at once
 		if (typeof type == 'object') {
-			this.actions.filter = type;
-			return this;
+			this.filters = type;
+		} else {
+			this.filters[type] = value;
 		}
 
-		this.actions.filter[type] = value;
+		this.hasFilters = true;
 
 		return this;
 
@@ -120,10 +100,9 @@
 			var options = {};
 		}
 
-		this.actions['layer'] = {
-			image: 1,
-			opacity: 10
-		};
+		if (this.hasFilters) {
+			this.actions.push({ method: 'filter', options: this.filters });
+		}
 
 		var json = {
 			callback: {
@@ -144,7 +123,10 @@
 			json.input = [];
 			json.input.push(data);
 
-			sendToServer(json,
+			px.sendToServer(
+				'post',
+				'/users/:userId/jobs/create',
+				json,
 				function(res) {
 					console.log('Sent to server:', res);
 				},
@@ -156,6 +138,9 @@
 
 	};
 
+	/**
+	 * The main px object and convenience functions
+	 */
 	var px = function(input) {
 
 		if (!px.userData) {
@@ -166,12 +151,16 @@
 
 	};
 
-	px.version = version;
-
 	/**
 	 * Use this to set up your account with apiKey, etc
 	 */
 	px.init = function(data) {
+
+		if (px.userData) {
+			throw '6px: Init must only be called once!';
+		}
+
+		px.debug = (!!data.debug || false);
 
 		if (!data.apiKey) {
 			throw '6px: apiKey is required!';
@@ -183,6 +172,37 @@
 
 		px.userData = data;
 
+		var success = function(res) {
+			px.log('success:', res);
+		};
+
+		var failed = function(res) {
+			px.log('failed:', res);
+			px.trigger('error', '');
+		};
+
+		px.sendToServer('post', '/users/:userId/auth', null, success, failed);
+
+	};
+
+	/**
+	 * Built in events
+	 */
+	px.on = function(name, fn) {
+		window.addEventListener(name, function(e) {
+			var args = [e];
+			if (e.detail) {
+				for (var i in e.detail) {
+					args.push(e.detail[i]);
+				}
+			}
+			fn.apply(null, args);
+		}, false);
+	};
+
+	px.trigger = function(name) {
+		var options = Array.prototype.slice.call(arguments, 1);
+		window.dispatchEvent(new CustomEvent(name, { detail: options }));
 	};
 
 	/**
@@ -211,14 +231,14 @@
 			return wrapCallbacks(e, options.onDragOver);
 		};
 		var dragEnd = function(e) {
-			return wrapCallbacks(e, options.onDragOver);
+			return wrapCallbacks(e, options.onDragEnd);
 		};
 		var dropped = function(e) {
 			return wrapCallbacks(e, options.onDrop);
 		};
 
 		elm.ondragover = dragOver;
-		elm.ondragend = dragEnd;
+		elm.ondragend = function() { console.log('test'); dragEnd; }
 		elm.ondrop = dropped;
 
 	};
@@ -268,6 +288,48 @@
 		dataUrlReader.readAsDataURL(f);
 	};
 
+	/**
+	 * Sends our data up to the 6px server
+	 */
+	px.sendToServer = function(method, path, json, success, failed) {
+
+		var user = px.userData;
+
+		path = path.replace(":userId", user.userId); // make life easier, eh?
+
+		var url = (document.location.protocol == 'https' ? 'https://' : 'http://');
+			url += 'api.6px.io'+ path,
+			url += (/\?/.test(url) ? '&' : '?') + 'key='+ user.apiKey;
+
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState < 4)
+				return;
+
+			if (xhr.status !== 200)
+				return failed.call(JSON.parse(xhr.responseText));
+
+			if (xhr.readyState === 4)
+				success.call(null, JSON.parse(xhr.responseText));
+		};
+
+		xhr.open(method.toUpperCase(), url, true);
+		if (json) {
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(JSON.stringify(json));
+		} else {
+			xhr.send();
+		}
+
+	};
+
+	px.log = function(msg) {
+		if (px.debug && console && console.log) {
+			console.log('6px:', msg);
+		}
+	};
+
+	px.version = version;
 	window.px = px;
 	
 })();
