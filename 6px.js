@@ -128,10 +128,10 @@
 				'/users/:userId/jobs/create',
 				json,
 				function(res) {
-					console.log('Sent to server:', res);
+					px.log('Sent to server:', res);
 				},
 				function() {
-					console.log('error');
+					px.trigger('error', 'Error sending to server');
 				});
 
 		});
@@ -202,6 +202,9 @@
 
 	px.trigger = function(name) {
 		var options = Array.prototype.slice.call(arguments, 1);
+		if (name == 'error') {
+			px.log(options[0], true);
+		}
 		window.dispatchEvent(new CustomEvent(name, { detail: options }));
 	};
 
@@ -217,6 +220,12 @@
 			var elm = document.querySelector(input);
 		} else {
 			var elm = input;
+		}
+
+		if (!elm) {
+
+			px.trigger('error', 'Element is not defined');
+			return false;
 		}
 
 		var wrapCallbacks = function(e, cb) {
@@ -238,7 +247,7 @@
 		};
 
 		elm.ondragover = dragOver;
-		elm.ondragend = function() { console.log('test'); dragEnd; }
+		elm.ondragend = function() { dragEnd; }
 		elm.ondrop = dropped;
 
 	};
@@ -323,9 +332,13 @@
 
 	};
 
-	px.log = function(msg) {
+	px.log = function(msg, err) {
 		if (px.debug && console && console.log) {
-			console.log('6px:', msg);
+			if (err) {
+				console.error('6px:', msg);
+			} else {
+				console.log('6px:', msg);
+			}
 		}
 	};
 
