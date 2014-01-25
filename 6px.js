@@ -121,7 +121,7 @@
 				ref: [ 'main' ],
 				tag: this.tag || null,
 				type: this.type,
-				methods: [this.actions]
+				methods: this.actions
 			}]
 		};
 
