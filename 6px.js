@@ -68,6 +68,13 @@
 		return this;
 	};
 
+	_6px.prototype.colorize = function(hex) {
+
+		this.actions.push({ method: 'colorize', options: { hex: hex } });
+
+		return this;
+	};
+
 	_6px.prototype.crop = function(position) {
 		
 		this.actions.push({ method: 'crop', options: position });
@@ -116,7 +123,6 @@
 			callback: {
 				url: this.callback || null
 			},
-			user_id: px.userData.userId,
 			output: [{
 				ref: [ 'main' ],
 				tag: this.tag || null,
@@ -131,12 +137,19 @@
 			json.input = {};
 			json.input['main'] = data;
 
+			if (options.dryRun) {
+                if (px.debug) {
+                    fn({ json: JSON.stringify(json, undefined, 2) });
+                }
+                return;
+            }
+
 			px.sendToServer(
 				'post',
-				'/users/:userId/jobs/create',
+				'/users/:userId/jobs',
 				json,
 				function(res) {
-					px.log('Sent to server:', res);
+					// px.log('Sent to server);
 				},
 				function() {
 					px.trigger('error', 'Error sending to server');
@@ -169,6 +182,7 @@
 		}
 
 		px.debug = (!!data.debug || false);
+        px.dryRun = (!!data.dryRun || false);
 
 		if (!data.apiKey) {
 			throw '6px: apiKey is required!';
@@ -181,7 +195,8 @@
 		px.userData = data;
 
 		var success = function(res) {
-			px.log('success:', res);
+			px.openSocket();
+			px.log(res);
 		};
 
 		var failed = function(res) {
@@ -191,6 +206,40 @@
 
 		px.sendToServer('post', '/users/:userId/auth', null, success, failed);
 
+	};
+
+	px.openSocket = function() {
+
+		var host = window.location.origin.indexOf('localhost') >= 0 
+			? 'ws://localhost:3000' 
+			: 'wss://api.6px.io';
+
+		var socket = new WebSocket(host);
+		socket.onopen = function(e) {
+			px.sendSocketMsg(socket, { auth: { user_id: px.userData.userId } });
+		};
+		socket.onclose = function(e) {
+			console.log('Close:', e);
+		};
+		socket.onerror = function(e) {
+			console.log('Error:', e);
+		};
+		socket.onmessage = px.handleIncoming;
+	};
+
+	px.sendSocketMsg = function(socket, obj) {
+		socket.send(JSON.stringify(obj));
+	};
+	px.handleIncoming = function(msg) {
+		var data = JSON.parse(msg.data);
+
+		if (data.auth && data.auth === true) {
+			console.log('Auth successful');
+		}
+
+		if (data.job_id && data.status) {
+			px.trigger('job-update', data.job_id, data.status);
+		}
 	};
 
 	/**
