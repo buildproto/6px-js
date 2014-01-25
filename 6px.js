@@ -16,14 +16,21 @@
 	 */
 	var _6px = function(input) {
 
+		// Setting some default values
+		this.reset();
 		this.image = input;
+		
+	};
+
+	_6px.prototype.reset = function() {
+		// Setting some default values
+		this.image = null;
 		this.tag = false;
 		this.type = 'image/png';
 		this.callback = false;
 		this.actions = {};
 		this.filters = {};
 		this.hasFilters = false;
-
 	};
 
 	/**
@@ -100,6 +107,7 @@
 			var options = {};
 		}
 
+		// Combine all of the filters set into one action (if they exist)
 		if (this.hasFilters) {
 			this.actions.push({ method: 'filter', options: this.filters });
 		}
@@ -110,7 +118,7 @@
 			},
 			user_id: px.userData.userId,
 			output: [{
-				ref: [0],
+				ref: [ 'main' ],
 				tag: this.tag || null,
 				type: this.type,
 				methods: [this.actions]
@@ -120,8 +128,8 @@
 
 		px.parseInput(this.image, function(data) {
 			
-			json.input = [];
-			json.input.push(data);
+			json.input = {};
+			json.input['main'] = data;
 
 			px.sendToServer(
 				'post',
