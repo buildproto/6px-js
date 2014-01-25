@@ -216,14 +216,16 @@
 
 		var socket = new WebSocket(host);
 		socket.onopen = function(e) {
+			// Send up a simple auth command, which will register our session
 			px.sendSocketMsg(socket, { auth: { user_id: px.userData.userId } });
 		};
 		socket.onclose = function(e) {
-			console.log('Close:', e);
+			console.warn('Socket closed');
+			setTimeout(function() {
+				px.openSocket();
+			}, 1000);
 		};
-		socket.onerror = function(e) {
-			console.log('Error:', e);
-		};
+		
 		socket.onmessage = px.handleIncoming;
 	};
 
