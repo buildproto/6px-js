@@ -58,3 +58,25 @@ px(imgElm)
     console.log('Processing');
   });
 ```
+Ok, great.  We have all of these jobs being sent to the 6px API.  Since we are working with a clientside library, we aren't able to post a response to your server.  Though, that's where WebSockets come in.
+```javascript
+px.on('job-update', function(e, id, status) {
+  if (status == 'pending') {
+    console.log('Job is pending');
+  }
+
+  if (status == 'processing') {
+    console.log('Job is processing');
+  }
+
+  if (status == 'complete') {
+    console.log('Job is complete!');
+  }
+  
+});
+```
+Now that we have gone through some of the sample use cases, we will go over all of the capabalities of the JS SDK.
+
+# Methods
+## resize
+Accepts an object, with `width` and `height` inside of it.
