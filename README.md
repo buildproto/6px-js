@@ -27,7 +27,7 @@ px.on('done', function() {
 Given that vintage photos are kind of kind of popular right now, let's take this up a notch:
 ```javascript
 px(imgElm)
-  .filter('sepia', 100)
+  .filter('sepia', true)
   .save(function(res) {
     console.log('Processing');
   });
@@ -35,9 +35,26 @@ px(imgElm)
 So, we have a bit of an extreme sepia effect going on here, but that's fine.  I think this deserves to be more of a thumbnail.  We are going to resize it now:
 ```javascript
 px(imgElm)
-  .filter('sepia', 100)
+  .filter('sepia', true)
   .resize({ width: 75 })
   .save(function(res) {
+    console.log('Processing');
+  });
+```
+Another thing we can do is change the dominate color of an image:
+```javascript
+px(imgElm)
+  .colorize('#00FF00')
+  .save(function() {
+    console.log('Processing');
+  });
+```
+Let's blur the image at the same time.
+```javascript
+px(imgElm)
+  .colorize('#00FF00')
+  .filter('gaussianBlur', 3)
+  .save(function() {
     console.log('Processing');
   });
 ```
