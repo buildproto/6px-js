@@ -79,4 +79,44 @@ Now that we have gone through some of the sample use cases, we will go over all 
 
 # Methods
 ## resize
-Accepts an object, with `width` and `height` inside of it.
+Accepts an object, with `width` and `height` inside of it.  If either of those arguments are ommitted, we will resize based on the aspect ratio of the image.
+
+```javascript
+px.resize({ width: 125 });
+```
+
+## filter
+Accepts two types of arguments.  `filter(key, val)` and `filter({ key: val })`.
+
+Our list of filters right now are detailed here: [6px Api Docs for Filters](https://github.com/6px-io/6px-api-docs#filter)
+
+```javascript
+px.filter({ invert: true });
+```
+
+## rotate
+Pass in an object with the key `degrees` and the value of how much you want to rotate it.
+
+The image will rotate from its center point counter clockwise.
+
+```javascript
+px.rotate({ degrees: 90 });
+```
+
+## colorize
+Recolors the entire image.  Pass in a hex value as the argument.
+
+```javascript
+px.colorize('#00ff00');
+```
+
+## crop
+Pass in an object with the coordinates desired.  Looks for `x`, `y`, `width`, and `height`.  If you are looking to crop to a face in the picture, you can omit the coordinates and pass in `face` and set that to true.  Then you can add padding around the face by passing in the `padding` value and that is converted to a pixel value.
+
+```javascript
+px.crop({ x: 100, y: 100, width: 250, height: 90 });
+```
+or
+```javascript
+px.crop({ face: true, padding: 50 });
+```
