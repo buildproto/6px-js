@@ -27,7 +27,7 @@ px.on('done', function() {
 Given that vintage photos are kind of kind of popular right now, let's take this up a notch:
 ```javascript
 px(imgElm)
-  .filter('sepia', true)
+  .filter({ sepia: 70 })
   .save(function(res) {
     console.log('Processing');
   });
@@ -35,7 +35,7 @@ px(imgElm)
 So, we have a bit of an extreme sepia effect going on here, but that's fine.  I think this deserves to be more of a thumbnail.  We are going to resize it now:
 ```javascript
 px(imgElm)
-  .filter('sepia', true)
+  .filter({ sepia: 70 })
   .resize({ width: 75 })
   .save(function(res) {
     console.log('Processing');
@@ -116,7 +116,7 @@ Pass in an object with the coordinates desired.  Looks for `x`, `y`, `width`, an
 ```javascript
 px.crop({ x: 100, y: 100, width: 250, height: 90 });
 ```
-or
+or (Not working yet!)
 ```javascript
 px.crop({ face: true, padding: 50 });
 ```
