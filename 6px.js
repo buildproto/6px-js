@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.0.2';
+	var version = '0.0.8';
 
 	/**
 	 * Adds some support to IE8
@@ -19,9 +19,11 @@
 		// Setting some default values
 		this.reset();
 		this.image = input;
-		
+
 	};
 
+	/**
+	 * Reset the request
 	_6px.prototype.reset = function() {
 		// Setting some default values
 		this.image = null;
@@ -36,7 +38,9 @@
 	/**
 	 * Resize input
 	 *
-	 * @param {object} size: Pass in width and/or height
+	 * @method resize
+	 * @param {object} size Pass in width and/or height
+	 * @chainable
 	 */
 	_6px.prototype.resize = function(size) {
 
@@ -46,6 +50,14 @@
 
 	};
 
+	/**
+	 * Add a filter to our image.
+	 *
+	 * @method filter
+	 * @param {String} type The filter name to apply.
+	 * @param {Mixed} value The value of the filter
+	 * @chainable
+	 */
 	_6px.prototype.filter = function(type, value) {
 
 		// User took a shortcut and used an object to define them all at once
@@ -61,6 +73,13 @@
 
 	};
 
+	/**
+	 * Rotate our image a specific degree amount.
+	 *
+	 * @method rotate
+	 * @param {Object} options Pass in the degrees for the image.  Can also pass in the color for the background.  Defaults to 'transparent'.
+	 * @chainable
+	 */
 	_6px.prototype.rotate = function(options) {
 
 		this.actions.push({ method: 'rotate', options: options });
@@ -68,6 +87,13 @@
 		return this;
 	};
 
+	/**
+	 * Recolor the image to the desired hex
+	 *
+	 * @method colorize
+	 * @chainable
+	 * @param {String} hex The desired hex color code
+	 */
 	_6px.prototype.colorize = function(hex) {
 
 		this.actions.push({ method: 'colorize', options: { hex: hex } });
@@ -75,13 +101,29 @@
 		return this;
 	};
 
+	/**
+	 * Crop the image to a specific box.
+	 *
+	 * Options: x, y, width, height
+	 *
+	 * @method crop
+	 * @params {Object} position The box that you want to crop to
+	 * @chainable
+	 */
 	_6px.prototype.crop = function(position) {
-		
+
 		this.actions.push({ method: 'crop', options: position });
 
 		return this;
 	};
 
+	/**
+	 * Set the tag name for the image.  Used for file name and basic identification
+	 *
+	 * @method tag
+	 * @chainable
+	 * @param {String} tag The name you want to tag the output with
+	 */
 	_6px.prototype.tag = function(tag) {
 
 		this.tag = tag;
@@ -90,6 +132,13 @@
 
 	};
 
+	/**
+	 * Set a callback URL for the API to send a POST request to when finished.
+	 *
+	 * @method callback
+	 * @param {String} url The URL to post to
+	 * @chainable
+	 */
 	_6px.prototype.callback = function(url) {
 
 		this.url = url;
@@ -98,6 +147,13 @@
 
 	};
 
+	/**
+	 * The desired mime type for the image.
+	 *
+	 * @method type
+	 * @param {String} mime The mime type of the file format you want the image to become.  For example: "image/png".
+	 * @chainable
+	 */
 	_6px.prototype.type = function(mime) {
 
 		this.type = mime;
@@ -105,8 +161,19 @@
 		return this;
 	};
 
+	/**
+	 * Send the request up to the server for processing.
+	 *
+	 * Options:
+	 * - dryRun: Does not post the request to the server.
+	 *
+	 * @method save
+	 * @param {Object} [options] Some saving options.  Described above.
+	 * @param {Function} [fn] Callback function.  Ran whenever we hear back from the API that the request was sent.  Does not mean the job has finished.
+	 * @chainable
+	 */
 	_6px.prototype.save = function(options, fn) {
-		
+
 		var _this = this;
 
 		if (typeof options == 'function') {
@@ -133,7 +200,7 @@
 
 
 		px.parseInput(this.image, function(data) {
-			
+
 			json.input = {};
 			json.input['main'] = data;
 
@@ -160,7 +227,9 @@
 	};
 
 	/**
-	 * The main px object and convenience functions
+	 * The main px object and convenience functions.
+	 *
+	 * Will throw an exception if px.init has not been called.
 	 */
 	var px = function(input) {
 
@@ -174,6 +243,8 @@
 
 	/**
 	 * Use this to set up your account with apiKey, etc
+	 *
+	 * Must be called before any other functions.
 	 */
 	px.init = function(data) {
 
@@ -210,8 +281,8 @@
 
 	px.openSocket = function() {
 
-		var host = window.location.origin.indexOf('localhost') >= 0 
-			? 'ws://localhost:3000' 
+		var host = window.location.origin.indexOf('localhost') >= 0
+			? 'ws://localhost:3000'
 			: 'wss://api.6px.io';
 
 		var socket = new WebSocket(host);
@@ -225,7 +296,7 @@
 				px.openSocket();
 			}, 1000);
 		};
-		
+
 		socket.onmessage = px.handleIncoming;
 	};
 
@@ -272,6 +343,11 @@
 	 *
 	 * Allows an element on the page to be set up so you can drag a file from your computer
 	 * and have it read the file inline.
+	 *
+	 * @example
+	 * 	px.dropZone('#dropzone', { onDrop: function(e) {
+	 *		console.log(e.dataTransfer.files);
+     *     } });
 	 */
 	px.dropZone = function(input, options) {
 
@@ -294,7 +370,7 @@
 
 			return false;
 		};
- 
+
 		var dragOver = function(e) {
 			return wrapCallbacks(e, options.onDragOver);
 		};
@@ -315,6 +391,16 @@
 	 * Reads in an input of multiple types for parsing as a DataURI
 	 *
 	 * If using with dropzone, you should utilize e.dataTransfer
+	 * @param {Mixed} input Can be a query string of the element, or the element itself.
+	 * @param {Function} fn Runs when the input has been parsed.
+	 * @example
+	 * 	px.dropZone('#dropzone', {
+	 *         onDrop: function(e) {
+	 *		      px.parseInput(e.dataTransfer, function(uri) {
+	 *			     console.log('data uri:', uri);
+	 *			  }
+	 *		   }
+	 *	   });
 	 */
 	px.parseInput = function(input, fn) {
 
@@ -350,7 +436,7 @@
 		dataUrlReader.onloadend = function() {
 
 			fn.call(null, this.result);
-			
+
 		};
 
 		dataUrlReader.readAsDataURL(f);
@@ -358,6 +444,8 @@
 
 	/**
 	 * Sends our data up to the 6px server
+	 *
+	 * Basically a wrapper that sends an XHR request to the 6px API server
 	 */
 	px.sendToServer = function(method, path, json, success, failed) {
 
@@ -391,6 +479,9 @@
 
 	};
 
+	/**
+	 * Wrapper for a console log.  Only shows if console.log is available and debug is enabled.
+	 */
 	px.log = function(msg, err) {
 		if (px.debug && console && console.log) {
 			if (err) {
@@ -403,5 +494,5 @@
 
 	px.version = version;
 	window.px = px;
-	
+
 })();

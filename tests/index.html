@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TEEEESTTTS</title>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/mocha/1.13.0/mocha.min.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/chai/1.9.0/chai.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/mocha/1.13.0/mocha.js"></script>
+    <script>mocha.setup('bdd');</script>
+    <script src="../6px.js"></script>
+    <script src="test.js"></script>
+
+    <script>
+        mocha.checkLeaks();
+        // mocha.globals(['6px']);
+        mocha.run();
+    </script>
+</body>
+</html>
