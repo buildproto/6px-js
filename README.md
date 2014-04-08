@@ -53,7 +53,7 @@ Let's blur the image at the same time.
 ```javascript
 px(imgElm)
   .colorize('#00FF00')
-  .filter('gaussianBlur', 3)
+  .filter({ stackBlur: 3 })
   .save(function() {
     console.log('Processing');
   });
