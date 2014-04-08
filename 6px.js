@@ -286,23 +286,31 @@
 			: 'wss://api.6px.io';
 
 		var socket = new WebSocket(host);
+
 		socket.onopen = function(e) {
 			// Send up a simple auth command, which will register our session
 			px.sendSocketMsg(socket, { auth: { user_id: px.userData.userId } });
 		};
+
+		// ping server to keep socket connection open (closes after 55s)
+		setInterval(function() {
+			socket.send(JSON.stringify({ ping: true }));
+		}, 30000);
+
 		socket.onclose = function(e) {
-			console.warn('Socket closed');
 			setTimeout(function() {
 				px.openSocket();
 			}, 1000);
 		};
 
 		socket.onmessage = px.handleIncoming;
+
 	};
 
 	px.sendSocketMsg = function(socket, obj) {
 		socket.send(JSON.stringify(obj));
 	};
+
 	px.handleIncoming = function(msg) {
 		var data = JSON.parse(msg.data);
 
