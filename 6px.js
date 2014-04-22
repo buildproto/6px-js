@@ -23,7 +23,10 @@
 	};
 
 	/**
-	 * Reset the request
+	* Reset the request
+	*
+	* @method reset
+	*/
 	_6px.prototype.reset = function() {
 		// Setting some default values
 		this.image = null;
@@ -446,9 +449,7 @@
 
 		path = path.replace(":userId", user.userId); // make life easier, eh?
 
-		var url = (document.location.protocol == 'https' ? 'https://' : 'http://');
-			url += 'api.6px.io/v1'+ path,
-			url += (/\?/.test(url) ? '&' : '?') + 'key='+ user.apiKey;
+		var url = 'https://api.6px.io/v1'+ path + (/\?/.test(url) ? '&' : '?') + 'key='+ user.apiKey;
 
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
