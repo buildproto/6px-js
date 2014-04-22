@@ -191,8 +191,7 @@
 				url: this.callback || null
 			},
 			output: [{
-				ref: [ 'main' ],
-				tag: this.tag || null,
+				ref: { main: (this.tag || false) },
 				type: this.type,
 				methods: this.actions
 			}]
