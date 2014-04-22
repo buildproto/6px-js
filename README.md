@@ -44,7 +44,7 @@ px(imgElm)
 Another thing we can do is change the dominate color of an image:
 ```javascript
 px(imgElm)
-  .colorize('#00FF00')
+  .filter({ colorize: { hex: '#00FF00', strength: 80 } })
   .save(function() {
     console.log('Processing');
   });
@@ -52,7 +52,7 @@ px(imgElm)
 Let's blur the image at the same time.
 ```javascript
 px(imgElm)
-  .colorize('#00FF00')
+  .filter({ colorize: { hex: '#00FF00', strength: 80 } })
   .filter({ stackBlur: 3 })
   .save(function() {
     console.log('Processing');
@@ -101,13 +101,6 @@ The image will rotate from its center point counter clockwise.
 
 ```javascript
 px.rotate({ degrees: 90 });
-```
-
-## colorize
-Recolors the entire image.  Pass in a hex value as the argument.
-
-```javascript
-px.colorize('#00ff00');
 ```
 
 ## crop
