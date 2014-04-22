@@ -88,20 +88,6 @@
 	};
 
 	/**
-	 * Recolor the image to the desired hex
-	 *
-	 * @method colorize
-	 * @chainable
-	 * @param {String} hex The desired hex color code
-	 */
-	_6px.prototype.colorize = function(hex) {
-
-		this.actions.push({ method: 'colorize', options: { hex: hex } });
-
-		return this;
-	};
-
-	/**
 	 * Crop the image to a specific box.
 	 *
 	 * Options: x, y, width, height
