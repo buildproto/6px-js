@@ -269,9 +269,7 @@
 
 	px.openSocket = function() {
 
-		var host = window.location.origin.indexOf('localhost') >= 0
-			? 'ws://localhost:3000'
-			: 'wss://api.6px.io';
+		var host = 'wss://socks.6px.io';
 
 		var socket = new WebSocket(host);
 
