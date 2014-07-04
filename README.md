@@ -9,10 +9,11 @@ If you want to simply upload an image to the 6px CDN:
 px.init({
 	apiKey: '***API KEY***',
 	userId: '*** USER ID ***',
-	debug: true
 });
 
-px(imgElm).save(function(res) {
+px({
+	img: imgElm
+}).save(function(res) {
   console.log('Got response!', res);
 });
 ```
@@ -26,37 +27,54 @@ px.on('done', function() {
 ```
 Given that vintage photos are kind of kind of popular right now, let's take this up a notch:
 ```javascript
-px(imgElm)
-  .filter({ sepia: 70 })
-  .save(function(res) {
+var _px = px({ img: imgElm });
+
+// Set up an output (or generated image) and apply sepia to it
+_px.output({ img: false }).filter({ sepia: 70 });
+
+_px.save(function(res) {
     console.log('Processing');
-  });
+});
 ```
 So, we have a bit of an extreme sepia effect going on here, but that's fine.  I think this deserves to be more of a thumbnail.  We are going to resize it now:
 ```javascript
-px(imgElm)
-  .filter({ sepia: 70 })
-  .resize({ width: 75 })
-  .save(function(res) {
-    console.log('Processing');
-  });
+var _px = px({ img: imgElm });
+
+// Set up an output (or generated image) and apply sepia to it
+_px.output({ img: false })
+	.filter({ sepia: 70 })
+	.resize({ width: 75 });
+
+_px.save(function(res) {
+	console.log('Processing');
+});
 ```
 Another thing we can do is change the dominate color of an image:
 ```javascript
-px(imgElm)
-  .filter({ colorize: { hex: '#00FF00', strength: 80 } })
-  .save(function() {
-    console.log('Processing');
-  });
+var _px = px({ img: imgElm });
+
+_px.output({ img: false })
+  .filter({ colorize: { hex: '#00FF00', strength: 80 } });
+
+
+_px.save(function() {
+	console.log('Processing');
+});
 ```
 Let's blur the image at the same time.
 ```javascript
-px(imgElm)
-  .filter({ colorize: { hex: '#00FF00', strength: 80 } })
-  .filter({ stackBlur: 3 })
-  .save(function() {
-    console.log('Processing');
-  });
+var _px = px({ img: imgElm });
+
+_px.output({ img: false })
+	.filter({
+		colorize: { hex: '#00FF00', strength: 80 },
+		stackBlur: 3
+	});
+
+
+_px.save(function() {
+	console.log('Processing');
+});
 ```
 Ok, great.  We have all of these jobs being sent to the 6px API.  Since we are working with a clientside library, we aren't able to post a response to your server.  Though, that's where WebSockets come in.
 ```javascript
@@ -72,7 +90,7 @@ px.on('job-update', function(e, id, status) {
   if (status == 'complete') {
     console.log('Job is complete!');
   }
-  
+
 });
 ```
 Now that we have gone through some of the sample use cases, we will go over all of the capabalities of the JS SDK.
@@ -82,7 +100,7 @@ Now that we have gone through some of the sample use cases, we will go over all 
 Accepts an object, with `width` and `height` inside of it.  If either of those arguments are ommitted, we will resize based on the aspect ratio of the image.
 
 ```javascript
-px.resize({ width: 125 });
+output.resize({ width: 125 });
 ```
 
 ## filter
@@ -91,7 +109,7 @@ Accepts two types of arguments.  `filter(key, val)` and `filter({ key: val })`.
 Our list of filters right now are detailed here: [6px Api Docs for Filters](https://github.com/6px-io/6px-api-docs#filter)
 
 ```javascript
-px.filter({ invert: true });
+output.filter({ invert: true });
 ```
 
 ## rotate
@@ -100,16 +118,16 @@ Pass in an object with the key `degrees` and the value of how much you want to r
 The image will rotate from its center point counter clockwise.
 
 ```javascript
-px.rotate({ degrees: 90 });
+output.rotate({ degrees: 90 });
 ```
 
 ## crop
 Pass in an object with the coordinates desired.  Looks for `x`, `y`, `width`, and `height`.  If you are looking to crop to a face in the picture, you can omit the coordinates and pass in `face` and set that to true.  Then you can add padding around the face by passing in the `padding` value and that is converted to a pixel value.
 
 ```javascript
-px.crop({ x: 100, y: 100, width: 250, height: 90 });
+output.crop({ x: 100, y: 100, width: 250, height: 90 });
 ```
 or (Not working yet!)
 ```javascript
-px.crop({ face: true, padding: 50 });
+output.crop({ face: true, padding: 50 });
 ```
