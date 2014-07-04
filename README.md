@@ -21,8 +21,10 @@ Note: When that callback on the save object is fired, it is only the API's ackno
 
 If we want to check whenever the API is done processing the request, we listen for a 'done' event.
 ```javascript
-px.on('done', function() {
-  console.log('Our image is ready!');
+px.on('job-update', function(e, id, status) {
+	if (status == 'complete') {
+		console.log('Our image is ready!');
+	}
 });
 ```
 Given that vintage photos are kind of kind of popular right now, let's take this up a notch:
