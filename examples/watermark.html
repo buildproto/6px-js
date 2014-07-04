@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>6px Watermark Test</title>
+    <script src="../6px.js"></script>
+</head>
+<body>
+
+    <form method="post" action="#">
+        <input type="file" id="upload" />
+    </form>
+
+    <h3>Result</h3>
+    <p id="no-results"><em>No results yet</em></p>
+    <img src="" id="finished-image" />
+
+    <script>
+
+        /**
+         * Send up our credentials
+         */
+        px.init({
+            apiKey: '0284e6a8b711cf89ae0897040029b34b',
+            userId: '53570317ed81710200aa471e'
+        });
+
+        /**
+         * Our response elements (for demo only)
+         */
+        var finishedImageElm = document.querySelector('#finished-image'),
+            noResultsElm = document.querySelector('#no-results'),
+            uploadFieldElm = document.querySelector('#upload');
+
+        finishedImageElm.style.display = 'none'; // hide our finished image
+
+        /**
+         * This is based on a WebSocket connection to our platform
+         *
+         * We are given results from the connection whenever a job is created
+         * and finished.  Job ID and Status are given via an object.
+         */
+        px.on('job-update', function(e, jobId, status) {
+
+            if (status == 'complete') {
+
+                /**
+                 * If the job is complete, lets grab the result of the info.
+                 *
+                 * We have a function that helps make that a little easier.
+                 */
+                px.get(jobId, function(res) {
+
+                    // Hide and show the appropriate form elements.
+                    noResultsElm.style.display = 'none';
+                    finishedImageElm.style.display = 'inline-block';
+
+                    /**
+                     * If we sent the image to 6px with "6px" as the end location
+                     * for the file to live, then we are given the location back.
+                     *
+                     * The reason for this, is that we actually know where the image
+                     * lives, considering its our platform.  Alternatively, you
+                     * could send your own connection string for us to store the image,
+                     * but we don't know the location.  So you are on your own for that. :)
+                     */
+                    finishedImageElm.src = res.processed.location;
+                });
+            }
+
+        });
+
+
+        // When our image field is changed, we will send the field's contents to 6px
+        // for watermarking.
+        uploadFieldElm.addEventListener('change', function() {
+
+            /**
+             * We will load the files that we want to alter here.
+             */
+            var _px = px({
+                image: uploadFieldElm, // the file uploaded by the user
+                logo: 'http://6px.io/img/px-logo-md@2x.png' // our watermark
+            });
+
+            /**
+             * Create an output.  Remember, an output represents an image that is
+             * created.  So, in this case, we will run it against our "layer" module.
+             *
+             * We have several options, but we will leave most of them as the default.
+             */
+            _px.output({ image: false })
+                .layer('logo', {
+                    opacity: 0.6
+                })
+                .url('6px'); // Save the image to 6px's CDN
+
+            /**
+             * Send the job to 6px!
+             *
+             * You can pass in an optional function here as a callback, but do
+             * keep in mind that the response here is the API's acknowledgement,
+             * and not the job being finished.  That is what the websocket connection
+             * up above is for.
+             */
+            _px.save();
+
+
+        }, false);
+
+    </script>
+
+</body>
+</html>

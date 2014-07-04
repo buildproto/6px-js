@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.0.8';
+	var version = '0.0.10';
 
 	/**
 	 * Adds some support to IE8
@@ -12,14 +12,253 @@
 	}
 
 	/**
+	 * Represents an Output through 6px.
+	 *
+	 * Outputs are basically images that are created through 6px.  It contains all of
+	 * the information needed to build the image.
+	 */
+	var Output = function(refs) {
+
+	    this.refs = (refs || {});
+
+	    this.type = 'image/png';
+	    this.urlLocation = false;
+	    this.actions = [];
+	    this.hasFilters = false;
+	    this.filters = {};
+
+	};
+
+	/**
+	 * Resize an image based off of the size object.
+	 *
+	 * If you just pass one value (width or height) the omitted value is assumed based on the aspect ratio.
+	 *
+	 * @method resize
+	 * @param  {Object} size [description]
+	 * @chainable
+	 */
+	Output.prototype.resize = function(size) {
+
+	    this.actions.push({
+	        method: 'resize',
+	        options: size
+	    });
+
+	    return this;
+
+	};
+
+	/**
+	 * Add some filters to an image
+	 *
+	 * @method filter
+	 * @param  {String} type  The filter name.  For instance: 'sepia'
+	 * @param  {Mixed} value  The value or strength that you are looking for.
+	 * @chainable
+	 */
+	Output.prototype.filter = function(type, value) {
+
+	    if (typeof type == 'object' && !(type instanceof Array)) {
+
+	        this.filters = type;
+
+	        this.hasFilters = true;
+
+	        return this;
+
+	    }
+
+	    this.filters[type] = value;
+
+	    this.hasFilters = true;
+
+	    return this;
+	};
+
+	/**
+	 * The location that we will attempt to save this to.
+	 *
+	 * The most convenient would be to save simply to 6px's CDN. To do that, just
+	 * pass in '6px'.
+	 *
+	 * @method url
+	 * @param  {String} location The location to save this to.
+	 * @chainable
+	 */
+	Output.prototype.url = function(location) {
+
+	    this.urlLocation = location;
+
+	    return this;
+
+	};
+
+	/**
+	 * Rotate an image
+	 *
+	 * @method rotate
+	 * @param  {Object} options Pass in degrees.  Pass in the optional background color as `color` (it assumes 'transparent')
+	 * @chainable
+	 */
+	Output.prototype.rotate = function(options) {
+
+	    this.actions.push({
+	        method: 'rotate',
+	        options: options
+	    });
+
+	    return this;
+
+	};
+
+	/**
+	 * Crop the image
+	 *
+	 * @method crop
+	 * @param  {Object} position Contains x, y, width, and height
+	 * @chainable
+	 */
+	Output.prototype.crop = function(position) {
+
+	    this.actions.push({
+	        method: 'crop',
+	        options: position
+	    });
+
+	    return this;
+	};
+
+	/**
+	 * Place one input on top of another.  Watermarking.
+	 *
+	 * @method layer
+	 * @param  {String} refName The name of the input you want to put on top.
+	 * @param  {Object} options The options object that contains (all optional): opacity, x, y, width, height
+	 * @chainable
+	 */
+	Output.prototype.layer = function(refName, options) {
+
+	    var action = {
+	        method: 'layer',
+	        options: {
+	            ref: refName
+	        }
+	    };
+
+	    if (options && typeof options == 'object' && !(options instanceof Array)) {
+
+	        Object.keys(options).forEach(function(index) {
+	            action.options[index] = options[index];
+	        });
+
+	    }
+
+	    this.actions.push(action);
+
+	    return this;
+
+	};
+
+	/**
+	 * The mime type to save this out as
+	 *
+	 * It assumes 'image/png'.
+	 *
+	 * @method type
+	 * @param  {String} mime The mime type to save as
+	 * @chainable
+	 */
+	Output.prototype.type = function(mime) {
+
+	    this.type = mime;
+
+	    return this;
+
+	};
+
+	/**
+	 * Called by the SDK to make sense of all of the data the user inputted.
+	 *
+	 * @method export
+	 * @return {Object}
+	 */
+	Output.prototype.export = function() {
+
+	    if (this.hasFilters) {
+
+	        this.actions.push({
+	            method: 'filter',
+	            options: this.filters
+	        });
+
+	    }
+
+	    var output = {
+	        ref: this.refs,
+	        type: this.type,
+	        methods: this.actions
+	    };
+
+	    if (this.urlLocation) {
+	        output.url = this.urlLocation;
+	    }
+
+	    return output;
+
+	};
+
+
+	/**
 	 * Constructor
 	 */
-	var _6px = function(input) {
+	var _6px = function(images) {
 
 		// Setting some default values
 		this.reset();
-		this.image = input;
 
+		if (images && typeof images == 'object') {
+	        Object.keys(images).forEach(function(index) {
+	            this.load(index, images[index]);
+	        }, this);
+	    }
+
+	};
+
+	/**
+	 * Load an input.
+	 *
+	 * Define a name and then where the file is.  Could be a local file or a file
+	 * somewhere online.
+	 *
+	 * @method load
+	 * @param {String} name The name we want to give our image.
+	 * @param {Mixed}  path The location or the file itself.  Can be a Buffer, relative path, or location on the web.
+	 * @chainable
+	 */
+	_6px.prototype.load = function(name, path) {
+
+	    this.images[name] = path;
+
+	    return this;
+	};
+
+	/**
+	 * Create a new output.
+	 *
+	 * Will create an Output object and add it to the list of outputs.
+	 *
+	 * @method  output
+	 * @param   {Object} refs A key/value pair.  Key refers to the ref (input name).  Value is the filename you wish to have.  If false, we will generate one for you.
+	 * @returns {Output} An output object
+	 */
+	_6px.prototype.output = function(refs) {
+
+	    var output = new Output(refs);
+
+	    this.outputs.push(output);
+
+	    return output;
 	};
 
 	/**
@@ -29,96 +268,9 @@
 	*/
 	_6px.prototype.reset = function() {
 		// Setting some default values
-		this.image = null;
-		this.tag = false;
-		this.type = 'image/png';
-		this.callback = false;
-		this.actions = [];
-		this.filters = {};
-		this.hasFilters = false;
-	};
-
-	/**
-	 * Resize input
-	 *
-	 * @method resize
-	 * @param {object} size Pass in width and/or height
-	 * @chainable
-	 */
-	_6px.prototype.resize = function(size) {
-
-		this.actions.push({ method: 'resize', options: size });
-
-		return this;
-
-	};
-
-	/**
-	 * Add a filter to our image.
-	 *
-	 * @method filter
-	 * @param {String} type The filter name to apply.
-	 * @param {Mixed} value The value of the filter
-	 * @chainable
-	 */
-	_6px.prototype.filter = function(type, value) {
-
-		// User took a shortcut and used an object to define them all at once
-		if (typeof type == 'object') {
-			this.filters = type;
-		} else {
-			this.filters[type] = value;
-		}
-
-		this.hasFilters = true;
-
-		return this;
-
-	};
-
-	/**
-	 * Rotate our image a specific degree amount.
-	 *
-	 * @method rotate
-	 * @param {Object} options Pass in the degrees for the image.  Can also pass in the color for the background.  Defaults to 'transparent'.
-	 * @chainable
-	 */
-	_6px.prototype.rotate = function(options) {
-
-		this.actions.push({ method: 'rotate', options: options });
-
-		return this;
-	};
-
-	/**
-	 * Crop the image to a specific box.
-	 *
-	 * Options: x, y, width, height
-	 *
-	 * @method crop
-	 * @params {Object} position The box that you want to crop to
-	 * @chainable
-	 */
-	_6px.prototype.crop = function(position) {
-
-		this.actions.push({ method: 'crop', options: position });
-
-		return this;
-	};
-
-	/**
-	 * Set the tag name for the image.  Used for file name and basic identification
-	 *
-	 * @method tag
-	 * @chainable
-	 * @param {String} tag The name you want to tag the output with
-	 */
-	_6px.prototype.tag = function(tag) {
-
-		this.tag = tag;
-
-		return this;
-
+	    this.images = {};
+	    this.outputs = [];
+	    this.callback = false;
 	};
 
 	/**
@@ -137,20 +289,6 @@
 	};
 
 	/**
-	 * The desired mime type for the image.
-	 *
-	 * @method type
-	 * @param {String} mime The mime type of the file format you want the image to become.  For example: "image/png".
-	 * @chainable
-	 */
-	_6px.prototype.type = function(mime) {
-
-		this.type = mime;
-
-		return this;
-	};
-
-	/**
 	 * Send the request up to the server for processing.
 	 *
 	 * Options:
@@ -165,52 +303,66 @@
 
 		var _this = this;
 
-		if (typeof options == 'function') {
-			var fn = options;
-			var options = {};
-		}
+	    if (typeof options == 'function') {
+	        var fn = options;
+	        var options = {};
+	    }
 
-		// Combine all of the filters set into one action (if they exist)
-		if (this.hasFilters) {
-			this.actions.push({ method: 'filter', options: this.filters });
-		}
+	    var inputs = {};
 
-		var json = {
-			callback: {
-				url: this.callback || null
-			},
-			output: [{
-				ref: { main: (this.tag || false) },
-				type: this.type,
-				methods: this.actions
-			}]
-		};
+	    var inputTotal = Object.keys(this.images),
+	        inputTotalLen = inputTotal.length;
 
+	    var done = function() {
 
-		px.parseInput(this.image, function(data) {
+	        var json = {
+	            input: inputs,
+	            output: _this.outputs.map(function(output) {
+	                return output.export();
+	            })
+	        };
 
-			json.input = {};
-			json.input['main'] = data;
+	        if (_this.callback) {
 
-			if (options.dryRun) {
-                if (px.debug) {
-                    fn({ json: JSON.stringify(json, undefined, 2) });
-                }
-                return;
-            }
+	            json.callback = {
+	                url: _this.callback
+	            };
 
-			px.sendToServer(
+	        }
+
+	        px.sendToServer(
 				'post',
 				'/users/:userId/jobs',
 				json,
 				function(res) {
-					// px.log('Sent to server);
+
+					if (fn) {
+						fn.call(_this, null, res);
+					}
 				},
 				function() {
-					px.trigger('error', 'Error sending to server');
+
+					if (fn) {
+						fn.call(_this, 'Error sending to server');
+					}
 				});
 
-		});
+	    };
+
+	    // parse the inputs, then run done() when finished.
+	    inputTotal.forEach(function(index) {
+
+	        px.parseInput(this.images[index], function(data) {
+
+	            inputs[index] = data;
+
+	            if (!--inputTotalLen) {
+	                done();
+	            }
+
+	        });
+
+	    }, this);
 
 	};
 
@@ -269,7 +421,7 @@
 
 	px.openSocket = function() {
 
-		var host = 'wss://socks.6px.io';
+		var host = 'ws://socks.6px.io';
 
 		var socket = new WebSocket(host);
 
@@ -399,6 +551,7 @@
 	px.parseInput = function(input, fn) {
 
 		if (typeof input == 'string') {
+
 			fn.call(null, input);
 			return;
 		}
@@ -448,6 +601,7 @@
 		path = path.replace(":userId", user.userId); // make life easier, eh?
 
 		var url = 'https://api.6px.io/v1'+ path + (/\?/.test(url) ? '&' : '?') + 'key='+ user.apiKey;
+		// var url = 'http://localhost:3000/v1'+ path + (/\?/.test(url) ? '&' : '?') + 'key='+ user.apiKey;
 
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -455,7 +609,7 @@
 				return;
 
 			if (xhr.status !== 200)
-				return failed.call(JSON.parse(xhr.responseText));
+				return failed.call(window, JSON.parse(xhr.responseText));
 
 			if (xhr.readyState === 4)
 				success.call(null, JSON.parse(xhr.responseText));
@@ -482,6 +636,19 @@
 				console.log('6px:', msg);
 			}
 		}
+	};
+
+	px.get = function(jobId, cb, binding) {
+
+		px.sendToServer('get', '/users/:userId/jobs/'+ jobId, false,
+			function success(res) {
+				cb.call((binding || window), res);
+			},
+
+			function failed() {
+				cb.call((binding || window), res);
+			}
+		)
 	};
 
 	px.version = version;
