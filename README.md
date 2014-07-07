@@ -11,9 +11,11 @@ px.init({
 	userId: '*** USER ID ***',
 });
 
-px({
-	img: imgElm
-}).save(function(res) {
+var _px = px({ img: imgElm });
+
+_px.output({ img: false }).tag('img').url('6px');
+
+_px.save(function(res) {
   console.log('Got response!', res);
 });
 ```
@@ -32,7 +34,10 @@ Given that vintage photos are kind of kind of popular right now, let's take this
 var _px = px({ img: imgElm });
 
 // Set up an output (or generated image) and apply sepia to it
-_px.output({ img: false }).filter({ sepia: 70 });
+_px.output({ img: false })
+	.filter({ sepia: 70 })
+	.tag('img')
+	.url('6px');
 
 _px.save(function(res) {
     console.log('Processing');
@@ -45,6 +50,8 @@ var _px = px({ img: imgElm });
 // Set up an output (or generated image) and apply sepia to it
 _px.output({ img: false })
 	.filter({ sepia: 70 })
+	.tag('img')
+	.url('6px')
 	.resize({ width: 75 });
 
 _px.save(function(res) {
@@ -56,6 +63,8 @@ Another thing we can do is change the dominate color of an image:
 var _px = px({ img: imgElm });
 
 _px.output({ img: false })
+  .url('6px')
+  .tag('img')
   .filter({ colorize: { hex: '#00FF00', strength: 80 } });
 
 
@@ -68,6 +77,8 @@ Let's blur the image at the same time.
 var _px = px({ img: imgElm });
 
 _px.output({ img: false })
+    .url('6px')
+	.tag('img')
 	.filter({
 		colorize: { hex: '#00FF00', strength: 80 },
 		stackBlur: 3
