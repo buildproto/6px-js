@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.0.10';
+	var version = '0.0.11';
 
 	/**
 	 * Adds some support to IE8
@@ -24,9 +24,16 @@
 	    this.type = 'image/png';
 	    this.urlLocation = false;
 	    this.actions = [];
+		this.tagName = '';
 	    this.hasFilters = false;
 	    this.filters = {};
 
+	};
+
+	Output.prototype.tag = function(name) {
+		this.tagName = name;
+
+		return this;
 	};
 
 	/**
@@ -197,6 +204,7 @@
 	    var output = {
 	        ref: this.refs,
 	        type: this.type,
+			tag: this.tagName,
 	        methods: this.actions
 	    };
 
