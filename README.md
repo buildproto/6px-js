@@ -1,5 +1,5 @@
-JS SDK for 6px
-==========
+Javascript client for 6px
+=========================
 
 A completely Javascript framework agnostic SDK for the 6px API.  Includes essential methods to run requests over to 6px along with some convenience methods (dropzone, etc).
 
