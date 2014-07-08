@@ -140,7 +140,5 @@ Pass in an object with the coordinates desired.  Looks for `x`, `y`, `width`, an
 ```javascript
 output.crop({ x: 100, y: 100, width: 250, height: 90 });
 ```
-or (Not working yet!)
-```javascript
-output.crop({ face: true, padding: 50 });
-```
+
+More examples of what is possible can be found by visiting the [6px API documentation](https://github.com/6px-io/6px-api-docs)
