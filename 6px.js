@@ -312,8 +312,8 @@
 		var _this = this;
 
 	    if (typeof options == 'function') {
-	        var fn = options;
-	        var options = {};
+	        fn = options;
+	        options = {};
 	    }
 
 	    var inputs = {};
@@ -433,7 +433,7 @@
 
 		var socket = new WebSocket(host);
 
-		socket.onopen = function(e) {
+		socket.onopen = function() {
 			// Send up a simple auth command, which will register our session
 			px.sendSocketMsg(socket, { auth: { user_id: px.userData.userId } });
 		};
@@ -443,7 +443,7 @@
 			socket.send(JSON.stringify({ ping: true }));
 		}, 30000);
 
-		socket.onclose = function(e) {
+		socket.onclose = function() {
 			setTimeout(function() {
 				px.openSocket();
 			}, 1000);
@@ -477,7 +477,9 @@
 			var args = [e];
 			if (e.detail) {
 				for (var i in e.detail) {
-					args.push(e.detail[i]);
+					if (e.detail.hasOwnProperty(i)) {
+						args.push(e.detail[i]);
+					}
 				}
 			}
 			fn.apply(null, args);
@@ -505,14 +507,15 @@
 	 */
 	px.dropZone = function(input, options) {
 
+		var elm;
+
 		if (typeof input == 'string') {
-			var elm = document.querySelector(input);
+			elm = document.querySelector(input);
 		} else {
-			var elm = input;
+			elm = input;
 		}
 
 		if (!elm) {
-
 			px.trigger('error', 'Element is not defined');
 			return false;
 		}
@@ -536,7 +539,7 @@
 		};
 
 		elm.ondragover = dragOver;
-		elm.ondragend = function() { dragEnd; }
+		elm.ondragend = function() { return dragEnd; };
 		elm.ondrop = dropped;
 
 	};
@@ -587,7 +590,7 @@
 
 		var f = input.files[0];
 
-		var dataUrlReader = new FileReader;
+		var dataUrlReader = new FileReader();
 		dataUrlReader.onloadend = function() {
 
 			fn.call(null, this.result);
@@ -653,10 +656,11 @@
 				cb.call((binding || window), res);
 			},
 
-			function failed() {
+			function failedr(res) {
 				cb.call((binding || window), res);
 			}
-		)
+		);
+
 	};
 
 	px.version = version;
