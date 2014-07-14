@@ -88,7 +88,7 @@ _px.output({ taxi: 'unsplashed_taxi' })
 	.url('6px')
 	.filter({
 		colorize: { hex: '#00FF00', strength: 80 },
-		stackBlur: 3
+		stackBlur: 20
 	});
 
 
