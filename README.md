@@ -49,7 +49,6 @@ _px.save(function(res) {
     console.log('Processing');
 });
 
-div
 ```
 So, we have a bit of an extreme sepia effect going on here, but that's fine.  I think this deserves to be more of a thumbnail.  We are going to resize it now:
 ```javascript
