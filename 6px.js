@@ -25,6 +25,69 @@
 		};
 	}
 
+	var Promise = this.Promise = function() {
+		this.callbacks = [];
+		this.state = null;
+		this.data = null;
+	};
+	Promise.prototype.fire = function(type, data) {
+
+		if (typeof type != 'function') {
+			this.state = (type == 'success') ? true : false;
+		}
+
+		this.callbacks.filter(function(cb) {
+
+			if (typeof type == 'function') {
+				return cb.fn == type && !cb.fired;
+			}
+
+			return cb.type == type && !cb.fired;
+
+		}).forEach(function(cb) {
+			cb.fire(data);
+		});
+
+	};
+	Promise.prototype.then = function(good, bad) {
+
+		this.callbacks.push(new Promise.Callback(good, 'success'));
+
+		if (bad) {
+			this.callbacks.push(new Promise.Callback(bad, 'fail'));
+		}
+
+		if (this.state != null) {
+			if (this.state) {
+				this.fire(good, this.data);
+			} else {
+				this.fire(bad, this.data);
+			}
+		}
+
+	};
+
+	Promise.Callback = function(fn, type) {
+		this.fired = false;
+		this.fn = fn;
+		this.type = type;
+	};
+	Promise.Callback.prototype.fire = function(data) {
+		this.fn(data);
+		this.fired = true;
+	};
+	var Defer = this.Defer = function() {
+		this.promise = new Promise();
+	};
+	Defer.prototype.resolve = function(data) {
+		this.promise.data = data;
+		this.promise.fire('success', data);
+	};
+	Defer.prototype.reject = function(error) {
+		this.promise.data = data;
+		this.promise.fire('fail', error);
+	};
+
 	var Result = function(data) {
 
 		this.data = data;
@@ -486,6 +549,8 @@
 	 */
 	px.init = function(data) {
 
+		var d = new Defer();
+
 		if (px.userData) {
 			throw '6px: Init must only be called once!';
 		}
@@ -504,7 +569,7 @@
 		px.userData = data;
 
 		var success = function(res) {
-			px.openSocket();
+			px.openSocket(d);
 			px.log(res);
 
 			px.on('job.update', function(e, jobId, status) {
@@ -521,9 +586,10 @@
 
 		px.sendToServer('post', '/users/:userId/auth', null, success, failed);
 
+		return d.promise;
 	};
 
-	px.openSocket = function() {
+	px.openSocket = function(d) {
 
 		var host = 'ws://socks.6px.io';
 
@@ -545,7 +611,9 @@
 			}, 1000);
 		};
 
-		socket.onmessage = px.handleIncoming;
+		socket.onmessage = function(msg) {
+			px.handleIncoming(msg, d);
+		};
 
 	};
 
@@ -553,11 +621,12 @@
 		socket.send(JSON.stringify(obj));
 	};
 
-	px.handleIncoming = function(msg) {
+	px.handleIncoming = function(msg, d) {
 		var data = JSON.parse(msg.data);
 
 		if (data.auth && data.auth === true) {
-			console.log('Auth successful');
+			px.trigger('connection');
+			d.resolve();
 		}
 
 		if (data.job_id && data.status) {

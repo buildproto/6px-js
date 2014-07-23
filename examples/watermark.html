@@ -19,9 +19,13 @@
         /**
          * Send up our credentials
          */
-        px.init({
-            apiKey: '0284e6a8b711cf89ae0897040029b34b',
-            userId: '53570317ed81710200aa471e'
+        var pxPromise = px.init({
+            apiKey: 'API KEY',
+            userId: 'USER ID'
+        });
+
+        px.on('connection', function() {
+            console.log('normal callback');
         });
 
         /**
@@ -32,42 +36,6 @@
             uploadFieldElm = document.querySelector('#upload');
 
         finishedImageElm.style.display = 'none'; // hide our finished image
-
-        /**
-         * This is based on a WebSocket connection to our platform
-         *
-         * We are given results from the connection whenever a job is created
-         * and finished.  Job ID and Status are given via an object.
-         */
-        px.on('job-update', function(e, jobId, status) {
-
-            if (status == 'complete') {
-
-                /**
-                 * If the job is complete, lets grab the result of the info.
-                 *
-                 * We have a function that helps make that a little easier.
-                 */
-                px.get(jobId, function(res) {
-
-                    // Hide and show the appropriate form elements.
-                    noResultsElm.style.display = 'none';
-                    finishedImageElm.style.display = 'inline-block';
-
-                    /**
-                     * If we sent the image to 6px with "6px" as the end location
-                     * for the file to live, then we are given the location back.
-                     *
-                     * The reason for this, is that we actually know where the image
-                     * lives, considering its our platform.  Alternatively, you
-                     * could send your own connection string for us to store the image,
-                     * but we don't know the location.  So you are on your own for that. :)
-                     */
-                    finishedImageElm.src = res.processed.watermarked.output.image.location;
-                });
-            }
-
-        });
 
 
         // When our image field is changed, we will send the field's contents to 6px
@@ -103,13 +71,29 @@
 
             /**
              * Send the job to 6px!
-             *
-             * You can pass in an optional function here as a callback, but do
-             * keep in mind that the response here is the API's acknowledgement,
-             * and not the job being finished.  That is what the websocket connection
-             * up above is for.
              */
-            _px.save();
+            pxPromise.then(function() {
+                console.log('Promise was resolved');
+                _px.save(function(err, job) {
+
+                    // Hide and show the appropriate form elements.
+                    noResultsElm.style.display = 'none';
+                    finishedImageElm.style.display = 'inline-block';
+
+                    /**
+                     * If we sent the image to 6px with "6px" as the end location
+                     * for the file to live, then we are given the location back.
+                     *
+                     * The reason for this, is that we actually know where the image
+                     * lives, considering its our platform.  Alternatively, you
+                     * could send your own connection string for us to store the image,
+                     * but we don't know the location.  So you are on your own for that. :)
+                     */
+
+                    finishedImageElm.src =job.getOutput('watermarked').getLocation('image');
+
+                });
+            });
 
 
         }, false);
