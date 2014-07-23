@@ -454,6 +454,8 @@
 	 */
 	_6px.prototype.save = function(options, fn) {
 
+		var d = new Defer();
+
 		var _this = this;
 
 	    if (typeof options == 'function') {
@@ -489,23 +491,30 @@
 				json,
 				function(res) {
 
-					if (fn) {
+					px.once('job.done.'+ res.id, function(e) {
 
-						px.once('job.done.'+ res.id, function(e) {
+						px.get(res.id, function(job) {
 
-							px.get(res.id, function(job) {
-								fn.call(_this, null, new Result(job.processed));
-							});
+							var r = new Result(job.processed);
+
+							d.resolve(r);
+							
+							if (fn) {
+								fn.call(_this, null, r);
+							}
 
 						});
-					}
+
+					});
 
 				},
 				function() {
 
+					d.reject('Error sending to server');
 					if (fn) {
 						fn.call(_this, 'Error sending to server');
 					}
+
 				});
 
 	    };
@@ -524,6 +533,8 @@
 	        });
 
 	    }, this);
+
+		return d.promise;
 
 	};
 

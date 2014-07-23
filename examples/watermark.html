@@ -74,25 +74,29 @@
              */
             pxPromise.then(function() {
                 console.log('Promise was resolved');
-                _px.save(function(err, job) {
 
-                    // Hide and show the appropriate form elements.
-                    noResultsElm.style.display = 'none';
-                    finishedImageElm.style.display = 'inline-block';
+                _px.save()
+                    .then(function(job) {
 
-                    /**
-                     * If we sent the image to 6px with "6px" as the end location
-                     * for the file to live, then we are given the location back.
-                     *
-                     * The reason for this, is that we actually know where the image
-                     * lives, considering its our platform.  Alternatively, you
-                     * could send your own connection string for us to store the image,
-                     * but we don't know the location.  So you are on your own for that. :)
-                     */
+                        // Hide and show the appropriate form elements.
+                        noResultsElm.style.display = 'none';
+                        finishedImageElm.style.display = 'inline-block';
 
-                    finishedImageElm.src =job.getOutput('watermarked').getLocation('image');
+                        /**
+                         * If we sent the image to 6px with "6px" as the end location
+                         * for the file to live, then we are given the location back.
+                         *
+                         * The reason for this, is that we actually know where the image
+                         * lives, considering its our platform.  Alternatively, you
+                         * could send your own connection string for us to store the image,
+                         * but we don't know the location.  So you are on your own for that. :)
+                         */
 
-                });
+                        finishedImageElm.src =job.getOutput('watermarked').getLocation('image');
+
+                    }, function(error) {
+                        console.log(error);
+                    });
             });
 
 
