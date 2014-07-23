@@ -20,8 +20,8 @@
          * Send up our credentials
          */
         px.init({
-            apiKey: '***API_KEY***',
-            userId: '***USER_ID***'
+            apiKey: '0284e6a8b711cf89ae0897040029b34b',
+            userId: '53570317ed81710200aa471e'
         });
 
         /**
@@ -63,7 +63,7 @@
                      * could send your own connection string for us to store the image,
                      * but we don't know the location.  So you are on your own for that. :)
                      */
-                    finishedImageElm.src = res.processed.location;
+                    finishedImageElm.src = res.processed.watermarked.output.image.location;
                 });
             }
 
@@ -94,6 +94,12 @@
                 })
                 .tag('watermarked')
                 .url('6px'); // Save the image to 6px's CDN
+
+            _px.getOutputByTagName('watermarked')
+                .resize({ width: 400 });
+
+            _px.getOutputByTagName('watermarked')
+                .resize({ height: 400 });
 
             /**
              * Send the job to 6px!
