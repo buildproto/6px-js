@@ -79,6 +79,52 @@ _px.output({ img: false })
 _px.save().then(function(res) {
 	console.log('Job Finished:', res);
 });
+```
+
+In some cases, you'll want to make sure we have an open connection with 6px before you send the job to us.  We handle everything with RESTful communication, but the connection is required for seeing when the job is done.  It is a lot nicer to have an open connection with our API to find when the job is finished processing vs polling.
+
+We have two ways of doing this:
+```javascript
+var init = px.init({
+  apiKey: 'api key',
+  userId: 'user id'
+});
+
+var _px = px({ img: imgElm });
+
+_px.output({ img: false })
+  .url('6px')
+  .tag('img');
+
+// promise style callback
+init.then(function() {
+  _px.save().then(function(res) {
+    console.log('Job Finished:', res);
+  });
+});
+```
+
+You could also use a standard callback:
+```javascript
+px.init({
+  apiKey: 'api key',
+  userId: 'user id'
+});
+
+
+px.on('connection', function() {
+  var _px = px({ img: imgElm });
+	
+  _px.output({ img: false })
+    .url('6px')
+    .tag('img');
+	
+  _px.save().then(function(res) {
+    console.log('Job Finished:', res);
+  });
+});
+```
+
 
 Now that we have gone through some of the sample use cases, we will go over all of the capabilities of the JS SDK.
 
