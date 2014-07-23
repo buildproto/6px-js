@@ -789,6 +789,22 @@
 
 	};
 
+	px.mergeObject = function(obj1, obj2) {
+
+		var obj3 = {};
+
+		Object.keys(obj1).forEach(function(index) {
+			obj3[index] = obj1[index];
+		});
+
+		Object.keys(obj2).forEach(function(index) {
+			obj3[index] = obj2[index];
+		});
+
+		return obj3;
+
+	};
+
 	px.version = version;
 	window.px = px;
 
