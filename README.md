@@ -15,20 +15,11 @@ var _px = px({ img: imgElm });
 
 _px.output({ img: false }).tag('img').url('6px');
 
-_px.save(function(res) {
+_px.save().then(function(res) {
   console.log('Got response!', res);
 });
 ```
-Note: When that callback on the save object is fired, it is only the API's acknowledgment that it received the request.
 
-If we want to check whenever the API is done processing the request, we listen for a 'done' event.
-```javascript
-px.on('job-update', function(e, id, status) {
-	if (status == 'complete') {
-		console.log('Our image is ready!');
-	}
-});
-```
 Given that vintage photos are kind of kind of popular right now, let's take this up a notch:
 ```javascript
 var _px = px({ img: imgElm });
@@ -39,8 +30,8 @@ _px.output({ img: false })
 	.tag('img')
 	.url('6px');
 
-_px.save(function(res) {
-    console.log('Processing');
+_px.save().then(function(res) {
+    console.log('Job Finished:', res);
 });
 ```
 So, we have a bit of an extreme sepia effect going on here, but that's fine.  I think this deserves to be more of a thumbnail.  We are going to resize it now:
@@ -54,8 +45,8 @@ _px.output({ img: false })
 	.url('6px')
 	.resize({ width: 75 });
 
-_px.save(function(res) {
-	console.log('Processing');
+_px.save().then(function(res) {
+	console.log('Job Finished:', res);
 });
 ```
 Another thing we can do is change the dominate color of an image:
@@ -68,8 +59,8 @@ _px.output({ img: false })
   .filter({ colorize: { hex: '#00FF00', strength: 80 } });
 
 
-_px.save(function() {
-	console.log('Processing');
+_px.save().then(function(res) {
+	console.log('Job Finished:', res);
 });
 ```
 Let's blur the image at the same time.
@@ -85,28 +76,11 @@ _px.output({ img: false })
 	});
 
 
-_px.save(function() {
-	console.log('Processing');
+_px.save().then(function(res) {
+	console.log('Job Finished:', res);
 });
-```
-Ok, great.  We have all of these jobs being sent to the 6px API.  Since we are working with a clientside library, we aren't able to post a response to your server.  Though, that's where WebSockets come in.
-```javascript
-px.on('job-update', function(e, id, status) {
-  if (status == 'pending') {
-    console.log('Job is pending');
-  }
 
-  if (status == 'processing') {
-    console.log('Job is processing');
-  }
-
-  if (status == 'complete') {
-    console.log('Job is complete!');
-  }
-
-});
-```
-Now that we have gone through some of the sample use cases, we will go over all of the capabalities of the JS SDK.
+Now that we have gone through some of the sample use cases, we will go over all of the capabilities of the JS SDK.
 
 # Methods
 ## resize
