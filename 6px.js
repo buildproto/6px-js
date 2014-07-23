@@ -26,27 +26,51 @@
 	}
 
 	var Result = function(data) {
+
 		this.data = data;
-	};
 
-	Result.prototype.getLocation = function() {
+		this.outputs = {};
 
-	};
-
-	Result.prototype.getWidth = function() {
-
-	};
-
-	Result.prototype.getHeight = function() {
+		Object.keys(this.data).forEach(function(index) {
+			this.outputs[index] = new Result.Output(this.data[index]);
+		}, this);
 
 	};
 
-	Result.prototype.getBytes = function() {
+	Result.prototype.getOutput = function(outputName) {
+		return this.outputs[outputName];
+	};
+
+	Result.Output = function(data) {
+
+		this.data = data;
+
+		this.refs = {};
+
+		Object.keys(this.data.output).forEach(function(index) {
+			this.refs[index] = this.data.output[index];
+		}, this);
 
 	};
 
-	Result.prototype.getDuration = function() {
+	Result.Output.prototype.getLocation = function(refName) {
+		return this.refs[refName].location;
+	};
 
+	Result.Output.prototype.getWidth = function(refName) {
+		return this.refs[refName].info.width;
+	};
+
+	Result.Output.prototype.getHeight = function(refName) {
+		return this.refs[refName].info.height;
+	};
+
+	Result.Output.prototype.getSize = function(refName) {
+		return this.refs[refName].info;
+	};
+
+	Result.Output.prototype.getBytes = function(refName) {
+		return this.refs[refName].info.bytes;
 	};
 
 
@@ -403,8 +427,16 @@
 				function(res) {
 
 					if (fn) {
-						fn.call(_this, null, res);
+
+						px.once('job.done.'+ res.id, function(e) {
+
+							px.get(res.id, function(job) {
+								fn.call(_this, null, new Result(job.processed));
+							});
+
+						});
 					}
+
 				},
 				function() {
 
@@ -474,6 +506,12 @@
 		var success = function(res) {
 			px.openSocket();
 			px.log(res);
+
+			px.on('job.update', function(e, jobId, status) {
+				if (status == 'complete') {
+					px.trigger('job.done.'+ jobId);
+				}
+			});
 		};
 
 		var failed = function(res) {
@@ -523,7 +561,7 @@
 		}
 
 		if (data.job_id && data.status) {
-			px.trigger('job-update', data.job_id, data.status);
+			px.trigger('job.update', data.job_id, data.status);
 		}
 	};
 
@@ -534,14 +572,28 @@
 		window.addEventListener(name, function(e) {
 			var args = [e];
 			if (e.detail) {
-				for (var i in e.detail) {
-					if (e.detail.hasOwnProperty(i)) {
-						args.push(e.detail[i]);
-					}
-				}
+				Object.keys(e.detail).forEach(function(index) {
+					args.push(e.detail[index]);
+				}, this);
 			}
 			fn.apply(null, args);
 		}, false);
+	};
+
+	px.once = function(name, fn) {
+		var listener = function(e) {
+			var args = [e];
+			if (e.detail) {
+				Object.keys(e.detail).forEach(function(index) {
+					args.push(e.detail[index]);
+				}, this);
+			}
+			fn.apply(null, args);
+
+			window.removeEventListener(name, listener, false);
+		};
+
+		window.addEventListener(name, listener, false);
 	};
 
 	px.trigger = function(name) {
