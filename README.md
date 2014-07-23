@@ -120,22 +120,18 @@ px.init({
 
 px.on('connection', function() {
   var _px = px({ img: imgElm });
-	
+
   _px.output({ img: false })
     .url('6px')
     .tag('img');
-	
+
   _px.save().then(function(res) {
     console.log('Job Finished:', res);
   });
 });
 ```
-<<<<<<< HEAD
 Now that we have covered some of the simple use cases, feel free to refer to our documentation!
 =======
-
-
-Now that we have gone through some of the sample use cases, we will go over all of the capabilities of the JS SDK.
 
 # Methods
 ## resize
@@ -162,7 +158,6 @@ The image will rotate from its center point counter clockwise.
 ```javascript
 output.rotate({ degrees: 90 });
 ```
->>>>>>> c7a17eaf7e3a514b45cf56f4280b6d215d1a1530
 
 ##[API Documentation](https://github.com/6px-io/6px-api-docs)
 
