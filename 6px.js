@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.0.11';
+	var version = '0.1.0';
 
 	/**
 	 * Adds some support to IE8
@@ -10,6 +10,46 @@
 			this.returnValue=false;
 		};
 	}
+
+	if (!Object.keys) {
+		Object.keys = function(obj) {
+			var keys = [];
+
+			for (var i in obj) {
+				if (obj.hasOwnProperty(i)) {
+					keys.push(i);
+				}
+			}
+
+			return keys;
+		};
+	}
+
+	var Result = function(data) {
+		this.data = data;
+	};
+
+	Result.prototype.getLocation = function() {
+
+	};
+
+	Result.prototype.getWidth = function() {
+
+	};
+
+	Result.prototype.getHeight = function() {
+
+	};
+
+	Result.prototype.getBytes = function() {
+
+	};
+
+	Result.prototype.getDuration = function() {
+
+	};
+
+
 
 	/**
 	 * Represents an Output through 6px.
@@ -28,6 +68,7 @@
 	    this.hasFilters = false;
 	    this.filters = {};
 
+		this.data = {};
 	};
 
 	Output.prototype.tag = function(name) {
@@ -47,10 +88,7 @@
 	 */
 	Output.prototype.resize = function(size) {
 
-	    this.actions.push({
-	        method: 'resize',
-	        options: size
-	    });
+	    this.data['resize'] = px.mergeObject((this.data['resize'] || {}), size);
 
 	    return this;
 
@@ -110,10 +148,7 @@
 	 */
 	Output.prototype.rotate = function(options) {
 
-	    this.actions.push({
-	        method: 'rotate',
-	        options: options
-	    });
+	    this.data['rotate'] = px.mergeObject((this.data['rotate'] || {}), options);
 
 	    return this;
 
@@ -128,10 +163,7 @@
 	 */
 	Output.prototype.crop = function(position) {
 
-	    this.actions.push({
-	        method: 'crop',
-	        options: position
-	    });
+		this.data['crop'] = px.mergeObject((this.data['crop'] || {}), position);
 
 	    return this;
 	};
@@ -200,6 +232,18 @@
 	        });
 
 	    }
+
+		Object.keys(this.data).forEach(function(index) {
+
+			var val = this.data[index];
+
+			this.actions.push({
+				method: index,
+				options: val
+			});
+
+		}, this);
+
 
 	    var output = {
 	        ref: this.refs,
@@ -294,6 +338,20 @@
 
 		return this;
 
+	};
+
+	/**
+	 * Grab an output that has been already defined and tagged.
+	 *
+	 * @param {String} tag The tag name you want to search for
+	 */
+	_6px.prototype.getOutputByTagName = function(tag) {
+
+		var relevant = this.outputs.filter(function(out) {
+			return out.tagName == tag;
+		});
+
+		return (relevant.length > 0) ? relevant[0] : null;
 	};
 
 	/**
@@ -660,6 +718,22 @@
 				cb.call((binding || window), res);
 			}
 		);
+
+	};
+
+	px.mergeObject = function(obj1, obj2) {
+
+		var obj3 = {};
+
+		Object.keys(obj1).forEach(function(index) {
+			obj3[index] = obj1[index];
+		});
+
+		Object.keys(obj2).forEach(function(index) {
+			obj3[index] = obj2[index];
+		});
+
+		return obj3;
 
 	};
 
