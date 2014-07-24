@@ -50,6 +50,22 @@
                 logo: 'http://6px.io/img/px-logo-md@2x.png' // our watermark
             });
 
+
+            pxPromise.then(function() {
+
+                /**
+                 * We will load the files that we want to alter here.
+                 */
+                px({
+                    image: uploadFieldElm, // the file uploaded by the user
+                    logo: 'http://6px.io/img/px-logo-md@2x.png' // our watermark
+                }).getInfo().then(function(res) {
+                    console.log(res.getWidth('image'));
+                    console.log(res.getWidth('logo'));
+                });
+
+            });
+
             /**
              * Create an output.  Remember, an output represents an image that is
              * created.  So, in this case, we will run it against our "layer" module.

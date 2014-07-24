@@ -136,6 +136,22 @@
 		return this.refs[refName].info.bytes;
 	};
 
+	Result.Info = function(data) {
+		this.data = data.getOutput('info');
+	};
+	Result.Info.prototype.getWidth = function(refName) {
+		return this.data.getWidth(refName);
+	};
+	Result.Info.prototype.getHeight = function(refName) {
+		return this.data.getHeight(refName);
+	};
+	Result.Info.prototype.getBytes = function(refName) {
+		return this.data.getBytes(refName);
+	};
+	Result.Info.prototype.getSize = function(refName) {
+		return this.data.getSize(refName);
+	};
+
 
 
 	/**
@@ -441,6 +457,36 @@
 		return (relevant.length > 0) ? relevant[0] : null;
 	};
 
+	_6px.prototype.getInfo = function(fn) {
+
+		var d = new Defer();
+
+		var refs = {};
+		Object.keys(this.images).forEach(function(index) {
+			refs[index] = false;
+		});
+
+		this.output(refs)
+			.tag('info');
+
+		this.save().then(function(res) {
+
+			var r = new Result.Info(res);
+
+			d.resolve(r);
+			if (fn) fn(null, r);
+
+		}, function(err) {
+
+			d.reject(err);
+			if (fn) fn(err);
+
+		});
+
+		return d.promise;
+
+	};
+
 	/**
 	 * Send the request up to the server for processing.
 	 *
@@ -496,9 +542,8 @@
 						px.get(res.id, function(job) {
 
 							var r = new Result(job.processed);
-
 							d.resolve(r);
-							
+
 							if (fn) {
 								fn.call(_this, null, r);
 							}
