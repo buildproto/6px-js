@@ -25,6 +25,9 @@
 		};
 	}
 
+	/**
+	 * Simple/basic promise style functionality
+	 */
 	var Promise = this.Promise = function() {
 		this.callbacks = [];
 		this.state = null;
@@ -136,6 +139,9 @@
 		return this.refs[refName].info.bytes;
 	};
 
+	/**
+	 * A response object formatted for an info call
+	 */
 	Result.Info = function(data) {
 		this.data = data.getOutput('info');
 	};
@@ -174,6 +180,14 @@
 		this.data = {};
 	};
 
+	/**
+	 * Every output needs a tag name.  It is what is used to define that image
+	 * going forward.
+	 *
+	 * @method tag
+	 * @param  {String} name The string name
+	 * @chainable
+	 */
 	Output.prototype.tag = function(name) {
 		this.tagName = name;
 
@@ -457,6 +471,9 @@
 		return (relevant.length > 0) ? relevant[0] : null;
 	};
 
+	/**
+	* Shortcut for sending an image and just getting the info about it.
+	*/
 	_6px.prototype.getInfo = function(fn) {
 
 		var d = new Defer();
@@ -467,6 +484,40 @@
 		});
 
 		this.output(refs)
+			.tag('info');
+
+		this.save().then(function(res) {
+
+			var r = new Result.Info(res);
+
+			d.resolve(r);
+			if (fn) fn(null, r);
+
+		}, function(err) {
+
+			d.reject(err);
+			if (fn) fn(err);
+
+		});
+
+		return d.promise;
+
+	};
+
+	/**
+	 * Shortcut for uploading an image to our CDN and returning the location.
+	 */
+	_6px.prototype.upload = function(fn) {
+
+		var d = new Defer();
+
+		var refs = {};
+		Object.keys(this.images).forEach(function(index) {
+			refs[index] = false;
+		});
+
+		this.output(refs)
+			.url('6px')
 			.tag('info');
 
 		this.save().then(function(res) {
@@ -705,6 +756,9 @@
 		}, false);
 	};
 
+	/**
+	 * Just like "on", but it removes the event handler when fired.
+	 */
 	px.once = function(name, fn) {
 		var listener = function(e) {
 			var args = [e];
@@ -898,22 +952,12 @@
 
 	};
 
-	px.mergeObject = function(obj1, obj2) {
-
-		var obj3 = {};
-
-		Object.keys(obj1).forEach(function(index) {
-			obj3[index] = obj1[index];
-		});
-
-		Object.keys(obj2).forEach(function(index) {
-			obj3[index] = obj2[index];
-		});
-
-		return obj3;
-
-	};
-
+	/**
+	 * Utility to merge two objects together and return the result as a new object.
+	 *
+	 * @param {Object} obj1 [description]
+	 * @param {[type]} obj2 [description]
+	 */
 	px.mergeObject = function(obj1, obj2) {
 
 		var obj3 = {};
