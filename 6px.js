@@ -60,7 +60,7 @@
 			this.callbacks.push(new Promise.Callback(bad, 'fail'));
 		}
 
-		if (this.state != null) {
+		if (this.state !== null) {
 			if (this.state) {
 				this.fire(good, this.data);
 			} else {
@@ -205,7 +205,7 @@
 	 */
 	Output.prototype.resize = function(size) {
 
-	    this.data['resize'] = px.mergeObject((this.data['resize'] || {}), size);
+	    this.data.resize = px.mergeObject((this.data.resize || {}), size);
 
 	    return this;
 
@@ -265,7 +265,7 @@
 	 */
 	Output.prototype.rotate = function(options) {
 
-	    this.data['rotate'] = px.mergeObject((this.data['rotate'] || {}), options);
+	    this.data.rotate = px.mergeObject((this.data.rotate || {}), options);
 
 	    return this;
 
@@ -280,7 +280,7 @@
 	 */
 	Output.prototype.crop = function(position) {
 
-		this.data['crop'] = px.mergeObject((this.data['crop'] || {}), position);
+		this.data.crop = px.mergeObject((this.data.crop || {}), position);
 
 	    return this;
 	};
