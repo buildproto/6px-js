@@ -7,7 +7,7 @@ A completely Javascript framework agnostic SDK for the 6px API.  Includes essent
 Drop this inside of your `<head>` tags:
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/6px/0.0.11/6px.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/6px/0.1.0/6px.min.js"></script>
 ```
 ## Examples
 If you want to simply upload an image to the 6px CDN:
