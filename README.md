@@ -51,15 +51,20 @@ px.init({
 	apiKey: 'YOUR_API_KEY'
 });
 
-var _px = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+px.on('connection', function() {
 
-_px.output({ taxi: 'unsplashed_taxi' })
-	.filter({ sepia: 70 })
-	.tag('vintage')
-	.url('6px');
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+    var output = image.output({ taxi: 'unsplashed_taxi' })
+        .tag('vintage')
+        .url('6px')
+        .filter({ sepia: 70 });
 
-_px.save().then(function(res) {
-	console.log('Response', res);
+    image.save().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
+
 });
 ```
 
@@ -71,20 +76,25 @@ px.init({
 	apiKey: 'YOUR_API_KEY'
 });
 
-var _px = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+px.on('connection', function() {
 
-_px.output({ taxi: 'unsplashed_taxi' })
-	.filter({ sepia: 70 })
-	.tag('vintage_thumb')
-	.url('6px')
-	.resize({ width: 75 });
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+    var output = image.output({ taxi: 'unsplashed_taxi' })
+        .tag('vintage_thumb')
+        .url('6px')
+        .filter({ sepia: 70 })
+        .resize({ width: 75 });
 
-_px.save().then(function(res) {
-	console.log('Response', res);
+    image.save().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
+
 });
 ```
 
-Change the dominate color of an image, and upload to 6px:
+Change the dominant color of an image and upload to 6px:
 
 ```javascript
 px.init({
@@ -92,19 +102,24 @@ px.init({
 	apiKey: 'YOUR_API_KEY'
 });
 
-var _px = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+px.on('connection', function() {
 
-_px.output({ taxi: 'unsplashed_taxi' })
-	.tag('green')
-	.url('6px')
-	.filter({ colorize: { hex: '#00FF00', strength: 80 } });
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+    var output = image.output({ taxi: 'unsplashed_taxi' })
+        .tag('green')
+        .url('6px')
+        .filter({ colorize: { hex: '#00FF00', strength: 80 } });
 
-_px.save().then(function(res) {
-	console.log('Response', res);
+    image.save().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
+
 });
 ```
 
-Change the dominate color of an image, apply a blur effect, and upload to 6px:
+Change the dominant color of an image, apply a blur effect, and upload to 6px:
 
 ```javascript
 px.init({
@@ -112,25 +127,100 @@ px.init({
 	apiKey: 'YOUR_API_KEY'
 });
 
-var _px = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+px.on('connection', function() {
 
-_px.output({ taxi: 'unsplashed_taxi' })
-	.tag('green_blur')
-	.url('6px')
-	.filter({
-		colorize: { hex: '#00FF00', strength: 80 },
-		stackBlur: 20
-	});
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+    var output = image.output({ taxi: 'unsplashed_taxi' })
+        .tag('green')
+        .url('6px')
+        .filter({ colorize: { hex: '#00FF00', strength: 80 } });
 
+    image.save().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
 
-_px.save().then(function(res) {
-	console.log('Response', res);
 });
 ```
 
-> **Tip**: In some cases, you'll want to make sure that you have an open connection with 6px before you send the job. We handle everything with RESTful communication, but a connection is required to see when the job is complete. Maintaining an open connection with 6px is faster and more convenient than polling.
+Get info (e.g. height, width, bytes, size, etc.) on an image:
 
-Promise style callback:
+```javascript
+px.init({
+	userId: 'YOUR_USER_ID',
+	apiKey: 'YOUR_API_KEY'
+});
+
+px.on('connection', function() {
+
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+
+    image.getInfo().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
+
+});
+```
+
+Override previously specified output using its tag name:
+
+```javascript
+px.init({
+	userId: 'YOUR_USER_ID',
+	apiKey: 'YOUR_API_KEY'
+});
+
+px.on('connection', function() {
+
+    var image = px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' });
+
+    var output = image.output({ taxi: 'unsplashed_taxi' })
+        .tag('thumb')
+        .url('6px')
+        .resize({
+            height: 200,
+            width: 200
+        });
+
+    // optionally override previously specified output
+    image.getOutputByTagName('thumb').resize({ height: 400, width: 400 });
+
+    image.save().then(function(res) {
+        console.log('Res', res);
+    }, function(err) {
+        console.log('Err', err);
+    });
+
+});
+```
+
+Convenience function for uploading an image without specifying methods:
+
+```javascript
+px.init({
+	userId: 'YOUR_USER_ID',
+	apiKey: 'YOUR_API_KEY'
+});
+
+px.on('connection', function() {
+
+    px({ taxi: 'https://s3.amazonaws.com/ooomf-com-files/mtNrf7oxS4uSxTzMBWfQ_DSC_0043.jpg' })
+        .upload().then(function(res) {
+            console.log('Res', res);
+        }, function(err) {
+            console.log('Err', err);
+        })
+    ;
+
+});
+```
+
+### Callback Options
+
+Promise:
 
 ```javascript
 var init = px.init({
@@ -151,7 +241,7 @@ init.then(function() {
 });
 ```
 
-Standard callback:
+Standard:
 
 ```javascript
 px.init({
