@@ -207,7 +207,7 @@
 
 	    this.data.resize = px.mergeObject((this.data.resize || {}), size);
 
-	    return this;
+		return this;
 
 	};
 
