@@ -268,4 +268,4 @@ px.on('connection', function() {
 
 Keep us posted on the cool stuff you are doing by sending an email to <support@6px.io>. If you come across any issues or have suggestions please [open an issue on GitHub](https://github.com/6px-io/6px-js/issues).
 
-[![Analytics](https://ga-beacon.appspot.com/UA-44211810-2/6px-api-docs)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-44211810-2/6px-js)](https://github.com/igrigorik/ga-beacon)
