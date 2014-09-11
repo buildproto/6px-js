@@ -10,7 +10,7 @@ A completely Javascript framework agnostic SDK for the 6px API.  Includes essent
 Include the 6px Javascript client by pasting the following `<script>` tag immediately before the closing `</head>` tag. If you prefer to use another version (e.g. beta), please download the source file from [GitHub](https://github.com/6px-io/6px-js).
 
 ```term
-<script src="//cdnjs.cloudflare.com/ajax/libs/6px/0.1.1/6px.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/6px/1.0.1/6px.min.js"></script>
 ```
 
 ### Initialization
