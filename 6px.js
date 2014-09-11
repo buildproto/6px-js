@@ -1,6 +1,6 @@
 (function() {
 
-	var version = '0.1.1';
+	var version = '1.0.1';
 
 	/**
 	 * Adds some support to IE8
