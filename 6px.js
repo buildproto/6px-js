@@ -87,7 +87,6 @@
 		this.promise.fire('success', data);
 	};
 	Defer.prototype.reject = function(error) {
-		this.promise.data = data;
 		this.promise.fire('fail', error);
 	};
 
